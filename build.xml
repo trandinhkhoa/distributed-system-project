@@ -1,0 +1,24 @@
+<project name="Sample Project" default="compile" basedir=".">
+
+    <property name="build.dir" location="build" />
+    <property name="doc.dir" location="doc" />
+    <property name="src.dir" location="src" />
+
+<!-- set up some directories used by this project -->
+<target name="init" description="setup project directories">
+    <mkdir dir="${build.dir}"/>
+    <mkdir dir="${doc.dir}"/>
+</target>
+
+<target name="test" description="test the project">
+</target>
+
+<target name="compile" description="compile the project">
+</target>
+
+<target name="clean" description="clean the project">
+    <delete dir="${build.dir}"/>
+    <delete dir="${doc.dir}"/>
+</target>
+
+</project>
