@@ -14,7 +14,7 @@
 <target name="test" description="test the project">
 </target>
 
-<target name="compile" description="compile the project">
+<target name="compile" description="compile the project" depends="init">
     <javac srcdir="${src.dir}" destdir="${build.dir}" />
 </target>
 
