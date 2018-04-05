@@ -1,6 +1,6 @@
 public class HashServer {
 
-    public static void main (String[] args) throws InterruptedException{
+    public static void main (String[] args){
         // TODO: bootstrap
         // we get the dictionnary from the load balancer
         //
@@ -19,10 +19,6 @@ public class HashServer {
     public static void waitForClients(){
         // TODO: wait for connection, when the work is done,
         // or when someone found the result, we propagate them
-        while (true){
-            System.out.println("[SERVER] Waiting...");
-            Thread.sleep(1000);
-        }
     }
 
     public static void propagateResults(){

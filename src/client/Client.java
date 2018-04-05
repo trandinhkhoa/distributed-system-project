@@ -1,4 +1,6 @@
 public class Client {
+    private static boolean workToDo;
+    private static boolean resultFound;
 
     public static void main (String[] args){
         // TODO: connect to load balancer
@@ -20,6 +22,8 @@ public class Client {
 
     private static void connectToLoadBalancer(){
         // TODO: connect to the load balancer
+        resultFound = false;
+        workToDo = true;
     }
 
     private static void getWork(){
