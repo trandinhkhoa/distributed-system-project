@@ -8,12 +8,14 @@
 <target name="init" description="setup project directories">
     <mkdir dir="${build.dir}"/>
     <mkdir dir="${doc.dir}"/>
+    <!-- <sshexec host="localhost" username="whoami" keyfile="~/.ssh/id_rsa" command="pwd" trust="true"/> -->
 </target>
 
 <target name="test" description="test the project">
 </target>
 
 <target name="compile" description="compile the project">
+    <javac srcdir="${src.dir}" destdir="${build.dir}" />
 </target>
 
 <target name="clean" description="clean the project">
