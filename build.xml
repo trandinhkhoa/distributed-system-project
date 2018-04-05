@@ -11,7 +11,7 @@
     <!-- <sshexec host="localhost" username="whoami" keyfile="~/.ssh/id_rsa" command="pwd" trust="true"/> -->
 </target>
 
-<target name="test" description="test the project">
+<target name="test" description="test the project" depends="compile">
 </target>
 
 <target name="compile" description="compile the project" depends="init">
