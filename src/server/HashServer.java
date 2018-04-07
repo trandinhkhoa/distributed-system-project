@@ -7,6 +7,8 @@ public class HashServer {
         // then we wait for incoming connections
         // servers communicate between themselves with rings
 
+        System.out.println("[Server] Starting...");
+
         getDictionnaryPart();
         waitForClients();
         propagateResults();
