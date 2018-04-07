@@ -2,8 +2,8 @@
 
 To compile and use this program, you need to use ant.
 
-You can start the load balancer like so:
-ant load_balancer -Dhash="hash to find" -Dhostfile="path/to/hostfile" -Ddictfile="path/to/dict"
+You can start the main system like so :
+ant bootstrap -Dhash="hash to find" -Dhostfile="path/to/hostfile" -Ddictfile="path/to/dict"
 
 Compiling:
     ant compile
