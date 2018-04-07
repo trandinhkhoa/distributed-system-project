@@ -16,13 +16,26 @@
 </target>
 
 <target name="compile" description="compile the project" depends="init">
-    <javac srcdir="${src.dir}" destdir="${build.dir}" />
+    <javac srcdir="${src.dir}" destdir="${build.dir}" >
+        <compilerarg value="-Xlint:unchecked" /> 
+    </javac>
     <path id="classpath">
         <pathelement path="lib/" />
         <pathelement location="lib/amqp-client-4.0.2.jar" />
         <pathelement location="lib/slf4j-api-1.7.21.jar" />
         <pathelement location="lib/slf4j-simple-1.7.22.jar" />
     </path>
+</target>
+
+<target name="load_balancer" description="start the load balancer" depends="compile">
+    <path id="classpath">
+        <pathelement location="build/" />
+    </path>
+    <java classpath="build/" classname="LoadBalancer">
+        <arg value="${hash}"/>
+        <arg value="${hostfile}"/>
+        <arg value="${dictfile}"/>
+    </java>
 </target>
 
 <target name="clean" description="clean the project">
