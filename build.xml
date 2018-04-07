@@ -5,6 +5,13 @@
     <property name="src.dir" location="src" />
     <property name="lib.dir" location="lib" />
 
+    <path id="build.classpath">
+        <fileset dir="lib">
+            <include name="lib/*.jar"/>
+        </fileset>
+    </path>
+
+
 <!-- set up some directories used by this project -->
 <target name="init" description="setup project directories">
     <mkdir dir="${build.dir}"/>
@@ -16,20 +23,24 @@
 </target>
 
 <target name="compile" description="compile the project" depends="init">
-    <javac srcdir="${src.dir}" destdir="${build.dir}" >
-        <compilerarg value="-Xlint:unchecked" /> 
-    </javac>
     <path id="classpath">
         <pathelement path="lib/" />
-        <pathelement location="lib/amqp-client-4.0.2.jar" />
+        <pathelement location="lib/amqp-client-5.1.2.jar" />
         <pathelement location="lib/slf4j-api-1.7.21.jar" />
         <pathelement location="lib/slf4j-simple-1.7.22.jar" />
     </path>
+    <javac srcdir="${src.dir}" destdir="${build.dir}" classpathref="classpath">
+        <compilerarg value="-Xlint:unchecked" /> 
+    </javac>
 </target>
 
 <target name="load_balancer" description="start the load balancer" depends="compile">
     <path id="classpath">
         <pathelement location="build/" />
+        <pathelement path="lib/" />
+        <pathelement location="lib/amqp-client-4.0.2.jar" />
+        <pathelement location="lib/slf4j-api-1.7.21.jar" />
+        <pathelement location="lib/slf4j-simple-1.7.22.jar" />
     </path>
     <java classpath="build/" classname="LoadBalancer">
         <arg value="${hash}"/>
