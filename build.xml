@@ -17,12 +17,12 @@
 
 <target name="compile" description="compile the project" depends="init">
     <javac srcdir="${src.dir}" destdir="${build.dir}" />
-    <classpath>
+    <path id="classpath">
         <pathelement path="lib/" />
         <pathelement location="lib/amqp-client-4.0.2.jar" />
         <pathelement location="lib/slf4j-api-1.7.21.jar" />
         <pathelement location="lib/slf4j-simple-1.7.22.jar" />
-    </classpath>
+    </path>
 </target>
 
 <target name="clean" description="clean the project">
