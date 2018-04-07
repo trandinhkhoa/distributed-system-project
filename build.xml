@@ -34,7 +34,7 @@
     </javac>
 </target>
 
-<target name="load_balancer" description="start the load balancer" depends="compile">
+<target name="bootstrap" description="start the system" depends="compile">
     <path id="classpath">
         <pathelement location="build/" />
         <pathelement path="lib/" />
