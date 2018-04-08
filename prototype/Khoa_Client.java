@@ -32,7 +32,8 @@ public class Client {
     }
 
     //send the request
-    public String call(String message) throws IOException, InterruptedException {
+    // public String call(String message) throws IOException, InterruptedException {
+    public Message call(String message) throws IOException, InterruptedException {
         final String corrId = UUID.randomUUID().toString();
 
         AMQP.BasicProperties props = new AMQP.BasicProperties
@@ -43,13 +44,15 @@ public class Client {
 
         channel.basicPublish("", requestQueueName, props, message.getBytes("UTF-8"));
 
-        final BlockingQueue<String> response = new ArrayBlockingQueue<String>(1);
+        // final BlockingQueue<String> response = new ArrayBlockingQueue<String>(1);
+        final BlockingQueue<Message> response = new ArrayBlockingQueue<Message>(1);
 
         channel.basicConsume(replyQueueName, true, new DefaultConsumer(channel) {
             @Override
             public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
                 if (properties.getCorrelationId().equals(corrId)) {
-                    response.offer(new String(body, "UTF-8"));
+                    // response.offer(new String(body, "UTF-8"));
+                    response.offer(Message.fromBytes(body));
                 }
             }
         });
@@ -69,20 +72,23 @@ public class Client {
         // send results
         // quit once no more work or result found
 
-        if (args.length < 1){
-            System.out.println("This need an IP to connect to.");
-        }
+        // if (args.length < 1){
+        //     System.out.println("This need an IP to connect to.");
+        // }
 
         Client workRequester = null;
-        String response = null;
+        // String response = null;
+        Message msgObj;
         try {
             workRequester = new Client();
 
             // get work
             System.out.println(" [x] Requesting for work");
             // 42 is just an example, you can send anything, number, string,etc.
-            response = workRequester.call("42");
-            System.out.println(" [.] Got '" + response + "'");
+            msgObj = workRequester.call("42");
+
+            // System.out.println(" [.] Got '" + response + "'");
+            System.out.println(" [.] Got '" + msgObj.getMsg() + "'");
 
             //do the work
             doWork(); 

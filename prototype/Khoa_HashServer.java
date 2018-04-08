@@ -23,7 +23,8 @@ public class HashServer {
         if (n == 1) {
             return 1;
         }
-        return fib(n - 1) + fib(n - 2);
+        // return fib(n - 1) + fib(n - 2);
+        return 100; 
     }
 
     public static void main (String[] args){
@@ -70,19 +71,25 @@ public class HashServer {
                     .correlationId(properties.getCorrelationId())
                     .build();
 
-                    String response = "";
+                    // String response = "";
+                    Message msgObj = new Message("HeLLo BoI");
 
                     //Give works to the connected client
                     try {
-                        String message = new String(body, "UTF-8");
-                        int n = Integer.parseInt(message);
+                        // String message = new String(body, "UTF-8");
+                        // int n = Integer.parseInt(message);
+                        // System.out.println(" [.] sendWork(" + message + ")");
 
-                        System.out.println(" [.] sendWork(" + message + ")");
-                        response += sendWork(n);
+                        System.out.println(" [.] sendWork(" + msgObj.getMsg() + ")");
+
+                        // response += sendWork(n);
                     } catch (RuntimeException e) {
                         System.out.println(" [.] " + e.toString());
                     } finally {
-                        channel.basicPublish("", properties.getReplyTo(), replyProps, response.getBytes("UTF-8"));
+                        // channel.basicPublish("", properties.getReplyTo(), replyProps, response.getBytes("UTF-8"));
+
+                        channel.basicPublish("", properties.getReplyTo(), replyProps, msgObj.toBytes());
+
                         channel.basicAck(envelope.getDeliveryTag(), false);
                         // RabbitMq consumer worker thread notifies the RPC server owner thread
                         synchronized (this) {
