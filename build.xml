@@ -28,6 +28,7 @@
         <pathelement location="lib/amqp-client-5.1.2.jar" />
         <pathelement location="lib/slf4j-api-1.7.21.jar" />
         <pathelement location="lib/slf4j-simple-1.7.22.jar" />
+        <pathelement location="lib/commons-validator-1.6.jar" />
     </path>
     <javac srcdir="${src.dir}" destdir="${build.dir}" classpathref="classpath">
         <compilerarg value="-Xlint:unchecked" /> 
@@ -41,8 +42,9 @@
         <pathelement location="lib/amqp-client-4.0.2.jar" />
         <pathelement location="lib/slf4j-api-1.7.21.jar" />
         <pathelement location="lib/slf4j-simple-1.7.22.jar" />
+        <pathelement location="lib/commons-validator-1.6.jar" />
     </path>
-    <java classpath="build/" classname="LoadBalancer">
+    <java classpathref="classpath" classname="LoadBalancer">
         <arg value="${hash}"/>
         <arg value="${hostfile}"/>
         <arg value="${dictfile}"/>
@@ -58,9 +60,24 @@
         <pathelement location="lib/amqp-client-4.0.2.jar" />
         <pathelement location="lib/slf4j-api-1.7.21.jar" />
         <pathelement location="lib/slf4j-simple-1.7.22.jar" />
+        <pathelement location="lib/commons-validator-1.6.jar" />
     </path>
-    <java classpath="build/" classname="HashServer">
+    <java classpathref="classpath" classname="HashServer">
         <arg value="${hash}"/>
+    </java>
+</target>
+
+<target name="client" description="start a client on the current host" depends="compile">
+    <path id="classpath">
+        <pathelement location="build/" />
+        <pathelement path="lib/*" />
+        <pathelement location="lib/amqp-client-4.0.2.jar" />
+        <pathelement location="lib/slf4j-api-1.7.21.jar" />
+        <pathelement location="lib/slf4j-simple-1.7.22.jar" />
+        <pathelement location="lib/commons-validator-1.6.jar" />
+    </path>
+    <java classpathref="classpath" classname="Client">
+        <arg value="${queue_ip}"/>
     </java>
 </target>
 
