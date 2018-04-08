@@ -38,7 +38,7 @@
     <path id="classpath">
         <pathelement location="build/" />
         <pathelement path="lib/" />
-        <pathelement location="lib/amqp-client-4.0.2.jar" />
+        <pathelement location="lib/amqp-client-5.1.2.jar" />
         <pathelement location="lib/slf4j-api-1.7.21.jar" />
         <pathelement location="lib/slf4j-simple-1.7.22.jar" />
     </path>
@@ -55,7 +55,7 @@
     <path id="classpath">
         <pathelement location="build/" />
         <pathelement path="lib/" />
-        <pathelement location="lib/amqp-client-4.0.2.jar" />
+        <pathelement location="lib/amqp-client-5.1.2.jar" />
         <pathelement location="lib/slf4j-api-1.7.21.jar" />
         <pathelement location="lib/slf4j-simple-1.7.22.jar" />
     </path>
