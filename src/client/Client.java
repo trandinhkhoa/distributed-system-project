@@ -68,9 +68,9 @@ public class Client {
     }
 
     private static void connectToLoadBalancer(){
-        // TODO: connect to the load balancer
         resultFound = false;
         workToDo = true;
+        // TODO: connect to the load balancer
         // TODO: get the hash to compute
         inputHash = "098f6bcd4621d373cade4e832627b4f6";
     }
