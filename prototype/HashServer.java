@@ -18,6 +18,7 @@ public class HashServer {
 
 
     private static int sendWork(int n) {
+        return 0;
     }
 
     public static void main (String[] args){
@@ -62,23 +63,36 @@ public class HashServer {
                     .correlationId(properties.getCorrelationId())
                     .build();
 
-                    //EXPLAIN: Initialize the object (array, list, whatever) you want to send here
-                    Message msgObj = new Message("HeLLo BoI");
-
-                    //Give works to the connected client
-                    try {
-                        System.out.println(" [.] sendWork(" + msgObj.getMsg() + ")");
-
-                    } catch (RuntimeException e) {
-                        System.out.println(" [.] " + e.toString());
-                    } finally {
-                        //EXPLAIN: in this line, msgObj.toBypes() convert the object "msgObj" to bytes, and channel.basicPublish push msgObj.toBytes() to the queue
-                        channel.basicPublish("", properties.getReplyTo(), replyProps, msgObj.toBytes());
-
+                    String reply = new String(body, "UTF-8");
+                    //EXPLAIN: If the client send a message with text "Found!" at the beginning, then dont sendi work, notify the result to the screen instead
+                    if (reply.substring(0,6).equals("Found!"))
+                    {
+                        System.out.println("Eureka ! "+ reply);
                         channel.basicAck(envelope.getDeliveryTag(), false);
                         // RabbitMq consumer worker thread notifies the RPC server owner thread
                         synchronized (this) {
                             this.notify();
+                        }
+                    } else
+                    {
+                        //EXPLAIN: Initialize the object (array, list, whatever) you want to send here
+                        Message msgObj = new Message("HeLLo BoI");
+
+                        //Give works to the connected client
+                        try {
+                            System.out.println(" [.] sendWork(" + msgObj.getMsg() + ")");
+
+                        } catch (RuntimeException e) {
+                            System.out.println(" [.] " + e.toString());
+                        } finally {
+                            //EXPLAIN: in this line, msgObj.toBypes() convert the object "msgObj" to bytes, and channel.basicPublish push msgObj.toBytes() to the queue
+                            channel.basicPublish("", properties.getReplyTo(), replyProps, msgObj.toBytes());
+
+                            channel.basicAck(envelope.getDeliveryTag(), false);
+                            // RabbitMq consumer worker thread notifies the RPC server owner thread
+                            synchronized (this) {
+                                this.notify();
+                            }
                         }
                     }
                 }

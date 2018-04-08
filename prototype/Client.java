@@ -19,6 +19,7 @@ public class Client {
     private Channel channel;
     private String requestQueueName = "rpc_queue";
     private String replyQueueName;
+    static Client workRequester = null;
 
     //constructor: connecto the loadbalancer (rabbitmq)
     public Client() throws IOException, TimeoutException {
@@ -75,7 +76,6 @@ public class Client {
         //     System.out.println("This need an IP to connect to.");
         // }
 
-        Client workRequester = null;
         // String response = null;
         Message msgObj;
         try {
@@ -84,7 +84,7 @@ public class Client {
             // get work
             System.out.println(" [x] Requesting for work");
             // 42 is just an example, you can send anything, number, string,etc.
-            msgObj = workRequester.call("42");
+            msgObj = workRequester.call("0100002345");
 
             // System.out.println(" [.] Got '" + response + "'");
             System.out.println(" [.] Got '" + msgObj.getMsg() + "'");
@@ -114,10 +114,25 @@ public class Client {
 
     private static void doWork(){
         // TODO: do the work
+        System.out.println(" [.] Pretending to work");
     }
 
     private static void sendResults(){
         // TODO: send result to out server
+        String result = "Found! Its 42!";
+        try {
+            System.out.println(" [x] Send the result");
+            //EXPLAIN: Notify the server about the result
+            workRequester.call(result);
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            if (workRequester != null) {
+                try {
+                    workRequester.close();
+                } catch (IOException _ignore) {}
+            }
+        }
     }
 
     private static void connectToLoadBalancer(){
