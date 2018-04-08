@@ -43,7 +43,7 @@ public class LoadBalancer {
         System.out.println("hash: " + hashString + " hostFile: " + hostFile + " dictionnaryFile: " + dictionnaryFile);
 
         try {
-            launchServers();
+            getServersInfo();
         } catch (FileNotFoundException e){
             System.err.println("Hostfile not found.\n" + e.getMessage());
             System.exit(1);
@@ -66,9 +66,8 @@ public class LoadBalancer {
         waitForClients();
     }
 
-    private static void launchServers() throws FileNotFoundException, IOException{
-        // TODO: we go through host file, and we launch each servers
-        System.out.println("[LB] Reading server file...");
+    private static void getServersInfo() throws FileNotFoundException, IOException{
+        System.out.println("[LB] Reading host file...");
         BufferedReader bufferedReader = new BufferedReader(new FileReader(hostFile));
         String serverIp = bufferedReader.readLine();
         while (serverIp != null){
@@ -80,16 +79,15 @@ public class LoadBalancer {
     }
 
     private static void splitDictionnary() throws IOException{
-        // TODO: open and split dictionnary file
         BufferedReader reader = new BufferedReader(new FileReader(dictionnaryFile));
-        System.out.println("Computing number of words...");
+        System.out.println("[LB] Computing number of words...");
         while (reader.readLine() != null) numberOfWords++;
         reader.close();
-        System.out.println("num of words:" + numberOfWords);
+        System.out.println("[LB] Num of words:" + numberOfWords);
         bigChunkSize = numberOfWords/numberOfServers;
-        System.out.println("Chunksize : " + bigChunkSize);
+        System.out.println("[LB] Maximum chunksize : " + bigChunkSize);
 
-        System.out.println("Creating chunks...");
+        System.out.println("[LB] Creating chunks...");
 
         reader = new BufferedReader(new FileReader(dictionnaryFile));
         String s = reader.readLine();
@@ -111,10 +109,14 @@ public class LoadBalancer {
     private static void distributeDictionnary(){
         // TODO: put the file parts into a rabbitMQ queue
         // when the queue is empty, the function is over
+        System.out.println("[LB] Distributing dictionnary...");
+        System.out.println("[LB] TODO");
     }
 
     private static void waitForClients(){
         // TODO: wait for a client to connect, use a rabiitMQ queue ?
+        System.out.println("[LB] Waiting for clients to connect...");
+        System.out.println("[LB] TODO");
     }
 }
 
