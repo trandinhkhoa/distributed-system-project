@@ -31,8 +31,7 @@ public class Client {
         replyQueueName = channel.queueDeclare().getQueue();
     }
 
-    //send the request
-    // public String call(String message) throws IOException, InterruptedException {
+    //EXPLAIN: send the request, the return type should be the type of the object you want to send. In this example the return type is Message, an example class I defined, change it to your the class of your the object you wnat to send
     public Message call(String message) throws IOException, InterruptedException {
         final String corrId = UUID.randomUUID().toString();
 
@@ -44,14 +43,14 @@ public class Client {
 
         channel.basicPublish("", requestQueueName, props, message.getBytes("UTF-8"));
 
-        // final BlockingQueue<String> response = new ArrayBlockingQueue<String>(1);
+        //EXPLAIN: Create a queue with element of type Message (change this type to suit your need). 
         final BlockingQueue<Message> response = new ArrayBlockingQueue<Message>(1);
 
         channel.basicConsume(replyQueueName, true, new DefaultConsumer(channel) {
             @Override
             public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
                 if (properties.getCorrelationId().equals(corrId)) {
-                    // response.offer(new String(body, "UTF-8"));
+                    //EXPLAIN: convert received byte array "body" to the type of the object you originally send. In this example byte[] is converted to Message using static method from Bytes
                     response.offer(Message.fromBytes(body));
                 }
             }

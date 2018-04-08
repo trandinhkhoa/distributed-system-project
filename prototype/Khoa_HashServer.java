@@ -16,15 +16,8 @@ public class HashServer {
 
     private static final String RPC_QUEUE_NAME = "rpc_queue";
 
+
     private static int sendWork(int n) {
-        if (n == 0) {
-            return 0;
-        }
-        if (n == 1) {
-            return 1;
-        }
-        // return fib(n - 1) + fib(n - 2);
-        return 100; 
     }
 
     public static void main (String[] args){
@@ -48,19 +41,17 @@ public class HashServer {
         // TODO : how do the server can communicate with each others ?
         // a ring yes, but how do they know where it is ?
 
-        //connect to the load balancer (rabbitmq)
+        //EXPLAIN: connect to the load balancer (rabbitmq)
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
 
         Connection connection = null;
         try {
+            //EXPLAIN: more establishing connection 
             connection = factory.newConnection();
             final Channel channel = connection.createChannel();
-
             channel.queueDeclare(RPC_QUEUE_NAME, false, false, false, null);
-
             channel.basicQos(1);
-
             System.out.println(" [x] Awaiting RPC requests");
 
             Consumer consumer = new DefaultConsumer(channel) {
@@ -71,23 +62,17 @@ public class HashServer {
                     .correlationId(properties.getCorrelationId())
                     .build();
 
-                    // String response = "";
+                    //EXPLAIN: Initialize the object (array, list, whatever) you want to send here
                     Message msgObj = new Message("HeLLo BoI");
 
                     //Give works to the connected client
                     try {
-                        // String message = new String(body, "UTF-8");
-                        // int n = Integer.parseInt(message);
-                        // System.out.println(" [.] sendWork(" + message + ")");
-
                         System.out.println(" [.] sendWork(" + msgObj.getMsg() + ")");
 
-                        // response += sendWork(n);
                     } catch (RuntimeException e) {
                         System.out.println(" [.] " + e.toString());
                     } finally {
-                        // channel.basicPublish("", properties.getReplyTo(), replyProps, response.getBytes("UTF-8"));
-
+                        //EXPLAIN: in this line, msgObj.toBypes() convert the object "msgObj" to bytes, and channel.basicPublish push msgObj.toBytes() to the queue
                         channel.basicPublish("", properties.getReplyTo(), replyProps, msgObj.toBytes());
 
                         channel.basicAck(envelope.getDeliveryTag(), false);
