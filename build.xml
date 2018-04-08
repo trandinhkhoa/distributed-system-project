@@ -47,6 +47,21 @@
         <arg value="${hostfile}"/>
         <arg value="${dictfile}"/>
     </java>
+    <!-- We send some of the arguments to the server too -->
+    <echo message="${hash}" />
+</target>
+
+<target name="server" description="start a server on the current host" depends="compile">
+    <path id="classpath">
+        <pathelement location="build/" />
+        <pathelement path="lib/" />
+        <pathelement location="lib/amqp-client-4.0.2.jar" />
+        <pathelement location="lib/slf4j-api-1.7.21.jar" />
+        <pathelement location="lib/slf4j-simple-1.7.22.jar" />
+    </path>
+    <java classpath="build/" classname="HashServer">
+        <arg value="${hash}"/>
+    </java>
 </target>
 
 <target name="clean" description="clean the project">
