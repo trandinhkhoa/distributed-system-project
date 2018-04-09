@@ -108,9 +108,16 @@ public class LoadBalancer {
 
     private static void distributeDictionnary(){
         // TODO: put the file parts into a rabbitMQ queue
+        // the servers will get the parts of the file
         // when the queue is empty, the function is over
         System.out.println("[LB] Distributing dictionnary...");
         System.out.println("[LB] TODO");
+        // TODO: create a queue
+        // when it's empty, it's over
+        // A server connect to the queue, get one chunk
+        // So it's not producer/consumer, more like reply stuff
+        // Every server gets a different chunk
+
     }
 
     private static void waitForClients(){
