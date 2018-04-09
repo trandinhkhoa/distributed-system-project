@@ -29,6 +29,7 @@ public class HashServer {
 
     public static void getDictionnaryPart(){
         // TODO: get dictionnary part from the load balancer
+
     }
 
     public static void waitForClients(){
@@ -38,5 +39,6 @@ public class HashServer {
 
     public static void propagateResults(){
         // TODO: we send to the other servers the result of our clients
+        // is it our job, or the LB job ?
     }
 }
