@@ -64,6 +64,7 @@
     </path>
     <java classpathref="classpath" classname="HashServer">
         <arg value="${hash}"/>
+        <arg value="${rabbitmq_ip}"/>
     </java>
 </target>
 
