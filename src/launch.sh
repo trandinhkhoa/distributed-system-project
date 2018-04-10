@@ -15,5 +15,5 @@ rabbitmq_ip=$3
 
 while IFS='' read -r line || [[ -n "$line" ]]; do
         echo "Text read from file: $line";
-        ssh $username@$line "cd $server_path; pwd ; ant server -Dhash=\"$hash\"-Drabbitmq_ip=$rabbitmq_ip " &
+        ssh $username@$line "cd $server_path; pwd ; ant server -Dhash=\"$hash\" -Drabbitmq_ip=$rabbitmq_ip " &
     done < "$1"
