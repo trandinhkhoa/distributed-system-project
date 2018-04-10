@@ -1,5 +1,3 @@
-package hashMachine;
-
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.Channel;
@@ -113,7 +111,9 @@ public class LoadBalancer {
             // TODO: limit password size in the dictionnary ?
             s = reader.readLine();
         }
-        bigChunks.add(stack);
+        if (!stack.empty()){
+            bigChunks.add(stack);
+        }
     }
 
     private static void distributeDictionnary(){
