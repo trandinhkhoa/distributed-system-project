@@ -17,13 +17,8 @@ A client is launched like so :
 
 ant client -Dqueue_ip="IP of rabbitMQ queue"
 
-The following won't do much for now :
-
 Compiling:
     ant compile
-
-Testing:
-    ant test
 
 Cleaning the directory:
     ant clean
