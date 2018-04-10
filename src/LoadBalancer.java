@@ -14,6 +14,8 @@ import java.io.FileNotFoundException;
 import java.io.BufferedReader;
 import java.util.Stack;
 
+import org.apache.commons.validator.routines.InetAddressValidator;
+
 public class LoadBalancer {
 
     private static String hashString;
@@ -77,9 +79,16 @@ public class LoadBalancer {
     private static void getServersInfo() throws FileNotFoundException, IOException{
         System.out.println("[LB] Reading host file...");
         BufferedReader bufferedReader = new BufferedReader(new FileReader(hostFile));
+        InetAddressValidator addressValidator = new InetAddressValidator();
+
         String serverIp = bufferedReader.readLine();
         while (serverIp != null){
-            serverList.add(serverIp);
+
+            if (addressValidator.getInstance().isValidInet4Address(serverIp) == true){
+                serverList.add(serverIp);
+            } else {
+                System.out.println("[LB] Error processing IP \""+serverIp+"\" is not a valid IPv4 address.");
+            }
             System.out.println(serverIp);
             serverIp = bufferedReader.readLine();
         }
