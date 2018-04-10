@@ -1,5 +1,3 @@
-package hashMachine;
-
 // import java.io.ByteArrayOutputStream;
 // import java.io.Serializable;
 // import java.io.IOException;
