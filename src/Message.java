@@ -5,19 +5,21 @@ package hashMachine;
 // import java.io.IOException;
 import java.io.*;
 
+import java.util.Stack;
+
 //EXPLAIN: The definition of the object you want to send through rabbitMQ queue
 public class Message implements Serializable{
     //EXPLAIN: define attributes, method, constructor of your object class here
-    String msg;
-    public Message(String msg){
+    Stack<String> msg;
+    public Message(Stack<String> msg){
         this.msg = msg;
     }
 
-    public void setMsg(String msg){
+    public void setMsg(Stack<String> msg){
         this.msg = msg;
     }
 
-    public String getMsg(){
+    public Stack<String> getMsg(){
         return this.msg;
     }
 
