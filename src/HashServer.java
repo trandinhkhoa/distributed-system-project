@@ -1,8 +1,8 @@
-package hashMachine;
-
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.Channel;
+
+import java.util.Stack;
 
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
@@ -16,7 +16,10 @@ public class HashServer {
     private static Channel channel;
     private static String requestQueueName = "rpc_queue";
     private static String replyQueueName;
-    private static Client workRequester = null;
+
+    private static Stack<String> bigChunk = new Stack<>();
+    private static Stack<Stack<String>> chunks = new Stack<>();
+    private static final Integer chunkSize = 100000;
 
     public static void main (String[] args){
         // TODO: bootstrap
@@ -34,6 +37,8 @@ public class HashServer {
         loadBalancerIp = args[1];
 
         System.out.println("[Server] Starting...");
+        System.out.println("[Server] hash: " + hashString);
+        System.out.println("[Server] loadBalancerIp: " + loadBalancerIp);
         // TODO : how do the server can communicate with each others ?
         // a ring yes, but how do they know where it is ?
 
@@ -41,9 +46,12 @@ public class HashServer {
             getDictionnaryPart();
         } catch (IOException | TimeoutException e){
             System.out.println("[Server] Error obtaining dictionnary part.");
-            System.out.println(e.getStackTrace());
+            System.out.println(e.getMessage());
             System.exit(1);
         }
+
+        splitDictionnary();
+
         waitForClients();
         propagateResults();
     }
@@ -61,14 +69,9 @@ public class HashServer {
 
         replyQueueName = channel.queueDeclare().getQueue();
 
+        channel.queueDeclare(SEND_WORK_QUEUE_NAME, false, false, false, null);
 
 
-
-        if (workRequester != null) {
-            try {
-                workRequester.close();
-            } catch (IOException _ignore) {}
-        }
     }
 
     public static void waitForClients(){
@@ -87,5 +90,22 @@ public class HashServer {
     public static void propagateResults(){
         // TODO: we send to the other servers the result of our clients
         // is it our job, or the LB job ?
+    }
+
+    public static void splitDictionnary(){
+        Stack<String> smallerChunk = new Stack<>();
+        while (!bigChunk.empty()){
+            if (chunks.size() < chunkSize){
+                smallerChunk.push(bigChunk.pop());
+            } else {
+                chunks.push(smallerChunk);
+                smallerChunk = new Stack<>();
+                smallerChunk.push(bigChunk.pop());
+            }
+        }
+
+        if (!smallerChunk.empty()){
+            chunks.push(smallerChunk);
+        }
     }
 }
