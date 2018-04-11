@@ -30,10 +30,14 @@ public class LoadBalancer {
 
     private static ArrayList<String> serverList = new ArrayList<>();
 
-    private static Connection connection = null;
-    private final static String REQUEST_QUEUE_NAME = "request_queue_lb";
+    // private static Connection connection = null;
+    // private final static String REQUEST_QUEUE_NAME = "request_queue_lb";
 
-    public static void main(String [] args)
+    static Connection connection;
+    static Channel channel;
+    private static String DISTRIBUTE_QUEUE_NAME = "distribute_queue";
+
+    public static void main(String [] args) throws Exception
     {
         // TODO: launch all the servers
         // put the parts of the file in a queue
@@ -41,39 +45,43 @@ public class LoadBalancer {
 
         // then we switch to lsiten mode for clients to connect
 
-        if (args.length < 3){
-            System.out.println("The load balancer need a MD5 hash, a host file and a dictionnary as argument.");
-            System.exit(0);
-        }
-
-        hashString = args[0];
-        hostFile = args[1];
-        dictionnaryFile = args[2];
-
-        System.out.println("hash: " + hashString + " hostFile: " + hostFile + " dictionnaryFile: " + dictionnaryFile);
+        // if (args.length < 3){
+        //     System.out.println("The load balancer need a MD5 hash, a host file and a dictionnary as argument.");
+        //     System.exit(0);
+        // }
+        //
+        // hashString = args[0];
+        // hostFile = args[1];
+        // dictionnaryFile = args[2];
+        //
+        // System.out.println("hash: " + hashString + " hostFile: " + hostFile + " dictionnaryFile: " + dictionnaryFile);
+        //
+        // try {
+        //     getServersInfo();
+        // } catch (FileNotFoundException e){
+        //     System.err.println("Hostfile not found.\n" + e.getMessage());
+        //     System.exit(1);
+        // } catch (IOException e){
+        //     System.err.println("Unable to read from file:\n" + e.getMessage());
+        //     System.exit(1);
+        // }
+        //
+        // try {
+        //     splitDictionnary();
+        // } catch (FileNotFoundException e){
+        //     System.err.println("Dictionnary file not found.\n" + e.getMessage());
+        //     System.exit(1);
+        // } catch (IOException e){
+        //     System.err.println("Unable to read from file:\n" + e.getMessage());
+        //     System.exit(1);
+        // }
 
         try {
-            getServersInfo();
-        } catch (FileNotFoundException e){
-            System.err.println("Hostfile not found.\n" + e.getMessage());
-            System.exit(1);
-        } catch (IOException e){
-            System.err.println("Unable to read from file:\n" + e.getMessage());
-            System.exit(1);
+            distributeDictionnary();
+        } catch (IOException | TimeoutException | InterruptedException e) {
+            e.printStackTrace();
+        } finally {
         }
-
-        try {
-            splitDictionnary();
-        } catch (FileNotFoundException e){
-            System.err.println("Dictionnary file not found.\n" + e.getMessage());
-            System.exit(1);
-        } catch (IOException e){
-            System.err.println("Unable to read from file:\n" + e.getMessage());
-            System.exit(1);
-        }
-
-        distributeDictionnary();
-        waitForClients();
     }
 
     private static void getServersInfo() throws FileNotFoundException, IOException{
@@ -125,7 +133,7 @@ public class LoadBalancer {
         }
     }
 
-    private static void distributeDictionnary(){
+    private static void distributeDictionnary() throws Exception{
         // TODO: put the file parts into a rabbitMQ queue
         // the servers will get the parts of the file
         // when the queue is empty, the function is over
@@ -136,32 +144,62 @@ public class LoadBalancer {
         // So it's not producer/consumer, more like reply stuff
         // Every server gets a different chunk
 
-        try {
-            ConnectionFactory factory = new ConnectionFactory();
-            factory.setHost("localhost");
-            Connection connection = factory.newConnection();
-            Channel channel = connection.createChannel();
+        ConnectionFactory factory = new ConnectionFactory();
+        factory.setHost("localhost");
 
-            channel.queueDeclare(REQUEST_QUEUE_NAME, false, false, false, null);
+        connection = factory.newConnection();
+        channel = connection.createChannel();
+        channel.queueDeclare(DISTRIBUTE_QUEUE_NAME, false, false, false, null);
 
-            Consumer consumer = new DefaultConsumer(channel) {
-                @Override
-                public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
-                    Message msgObj = Message.fromBytes(body);
-                    String cmd = msgObj.getMsg().pop();
-                    System.out.println(" [x] Received '" + cmd + "'");
-                    try{
-                        //sendWork(msgObj.getMsg());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            };
-            channel.basicConsume(REQUEST_QUEUE_NAME, true, consumer);
-        } catch (IOException | TimeoutException e) {
-            System.out.println("[LB] Error while distributing dictionary.");
-            System.exit(1);
-        }
+        Message msgObj_1 = new Message("partition 1");
+        // Message msgObj_2 = new Message("partition 2");
+        // Message msgObj_3 = new Message("partition 3");
+        // Message msgObj_4 = new Message("partition 4");
+
+        channel.basicPublish("", DISTRIBUTE_QUEUE_NAME, null, msgObj_1.toBytes());
+        System.out.println(" [x] Distribute the dictionary" + msgObj_1.getMsg() );
+
+        // channel.basicPublish("", DISTRIBUTE_QUEUE_NAME, null, msgObj_2.toBytes());
+        // System.out.println(" [x] Distribute the dictionary" + msgObj_2.getMsg() );
+        //
+        // channel.basicPublish("", DISTRIBUTE_QUEUE_NAME, null, msgObj_3.toBytes());
+        // System.out.println(" [x] Distribute the dictionary" + msgObj_3.getMsg() );
+        //
+        // channel.basicPublish("", DISTRIBUTE_QUEUE_NAME, null, msgObj_4.toBytes());
+        // System.out.println(" [x] Distribute the dictionary" + msgObj_4.getMsg() );
+        
+        //close communication after sent the request 
+        channel.close();
+        connection.close();
+
+        ////// OLD ////
+        // try {
+        //     ConnectionFactory factory = new ConnectionFactory();
+        //     factory.setHost("localhost");
+        //     Connection connection = factory.newConnection();
+        //     Channel channel = connection.createChannel();
+        //
+        //     channel.queueDeclare(REQUEST_QUEUE_NAME, false, false, false, null);
+        //
+        //     Consumer consumer = new DefaultConsumer(channel) {
+        //         @Override
+        //         public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
+        //             Message msgObj = Message.fromBytes(body);
+        //             String cmd = msgObj.getMsg().pop();
+        //             System.out.println(" [x] Received '" + cmd + "'");
+        //             try{
+        //                 //sendWork(msgObj.getMsg());
+        //             } catch (Exception e) {
+        //                 e.printStackTrace();
+        //             }
+        //         }
+        //     };
+        //     channel.basicConsume(REQUEST_QUEUE_NAME, true, consumer);
+        // } catch (IOException | TimeoutException e) {
+        //     System.out.println("[LB] Error while distributing dictionary.");
+        //     System.exit(1);
+        // }
+        ////// OLD ////
     }
 
 

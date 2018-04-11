@@ -13,19 +13,17 @@ import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.validator.routines.InetAddressValidator;
 
+import java.util.Random;
+
 public class HashServer {
 
     private static String hashString;
     private static String loadBalancerIp;
 
-    private static Connection connection;
-    private static Channel channel;
-
-    //EXPLAIN: declare queue REQUEST_QUEUE_NAME used to receive request
+    //EXPLAIN: declare queue REQUEST_QUEUE_NAME used to receive request 
     private final static String REQUEST_QUEUE_NAME = "request_queue";
-
-    private static String requestQueueName = "rpc_queue";
-    private static String replyQueueName;
+    private final static String DISTRIBUTE_QUEUE_NAME = "distribute_queue";
+    private static Message myPartition = new Message("NOTHING"); //placeholder, this is the part of the dictionary the server receveive from the LB
 
     private static Stack<String> bigChunk = new Stack<>();
     private static Stack<Stack<String>> chunks = new Stack<>();
@@ -38,23 +36,24 @@ public class HashServer {
         // then we wait for incoming connections
         // servers communicate between themselves with rings
 
-        if (args.length < 2){
-            System.out.println("A server need a MD5 hash, and a rabbitMQ IP to connect to.");
-            System.exit(0);
-        }
-
-        hashString = args[0];
-        loadBalancerIp = args[1];
-
-        InetAddressValidator addressValidator = new InetAddressValidator();
-        if (addressValidator.getInstance().isValidInet4Address(loadBalancerIp) == false){
-            System.out.println("[Server] Please enter a proper IP address.");
-            System.exit(1);
-        }
-
-        System.out.println("[Server] Starting...");
-        System.out.println("[Server] hash: " + hashString);
-        System.out.println("[Server] loadBalancerIp: " + loadBalancerIp);
+        // if (args.length < 2){
+        //     System.out.println("A server need a MD5 hash, and a rabbitMQ IP to connect to.");
+        //     System.exit(0);
+        // }
+        //
+        // hashString = args[0];
+        // loadBalancerIp = args[1];
+        //
+        // InetAddressValidator addressValidator = new InetAddressValidator();
+        // if (addressValidator.getInstance().isValidInet4Address(loadBalancerIp) == false){
+        //     System.out.println("[Server] Please enter a proper IP address.");
+        //     System.exit(1);
+        // }
+        
+        // System.out.println("[Server] Starting...");
+        // System.out.println("[Server] hash: " + hashString);
+        // System.out.println("[Server] loadBalancerIp: " + loadBalancerIp);
+        //
         // TODO : how do the server can communicate with each others ?
         // a ring yes, but how do they know where it is ?
 
@@ -68,32 +67,59 @@ public class HashServer {
 
         splitDictionnary();
 
+        //Wait and send work
+        ConnectionFactory factory = new ConnectionFactory();
+        factory.setHost("localhost");
+
+        Connection connection = null;
         try {
             waitForClients();
-        } catch (IOException | TimeoutException e){
+        } catch (IOException | TimeoutException e) {
             System.out.println("[Server] Error while waiting for clients.");
             System.out.println(e.getMessage());
             System.exit(1);
+        } finally {
+            if (connection != null)
+                try {
+                    connection.close();
+                } catch (IOException _ignore) {}
         }
-        propagateResults();
+        // propagateResults();
     }
 
     public static void getDictionnaryPart() throws IOException, TimeoutException{
         // TODO: get dictionnary part from the load balancer
-
-        System.out.println("[Server] Obtaining dictionary part");
-        // Connection to the load balancer
         ConnectionFactory factory = new ConnectionFactory();
-        factory.setHost(loadBalancerIp);
+        // factory.setHost(loadBalancerIp);
+        factory.setHost("localhost");
+        Connection connection = factory.newConnection();
+        Channel channel = connection.createChannel();
 
-        connection = factory.newConnection();
-        channel = connection.createChannel();
+        channel.queueDeclare(DISTRIBUTE_QUEUE_NAME, false, false, false, null);
+        System.out.println(" [*] Waiting for My Dictionary Partition. To exit press CTRL+C");
 
-        replyQueueName = channel.queueDeclare().getQueue();
+        // final Message[] msgObj_reply = new Message[1];
 
-        //channel.queueDeclare(SEND_WORK_QUEUE_NAME, false, false, false, null);
+        Consumer consumer = new DefaultConsumer(channel) {
+            @Override
+            public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
+                Message msgObj = Message.fromBytes(body);
+                System.out.println(" [x] Received partition '" + msgObj.getMsg() + "'");
+                try{
+                    storePartition(msgObj);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } 
+                // msgObj_reply[0] = Message.fromBytes(body);
+                // System.out.println(" [x] Received '" + msgObj_reply[0].getMsg() + "'");
+            }
+        };
+        channel.basicConsume(DISTRIBUTE_QUEUE_NAME, true, consumer);
+    }
 
-
+    public static void storePartition(Message partition) throws Exception{
+        myPartition = partition; 
+        System.out.println(" [x] Saved my partition '" + myPartition.getMsg() + "'");
     }
 
     public static void waitForClients() throws IOException, TimeoutException {
@@ -114,7 +140,7 @@ public class HashServer {
         Channel channel = connection.createChannel();
 
         channel.queueDeclare(REQUEST_QUEUE_NAME, false, false, false, null);
-        System.out.println(" [*] Waiting for messages. To exit press CTRL+C");
+        System.out.println(" [*] Waiting for requests. To exit press CTRL+C");
 
         // final Message[] msgObj_reply = new Message[1];
 
@@ -124,17 +150,15 @@ public class HashServer {
                 Message msgObj = Message.fromBytes(body);
                 System.out.println(" [x] Received '" + msgObj.getMsg() + "'");
                 try{
-                    // TODO: we should get the client ID on a stack
-                    //sendWork(msgObj.getMsg());
+                    sendWork(msgObj.getMsg());
                 } catch (Exception e) {
                     e.printStackTrace();
-                }
+                } 
                 // msgObj_reply[0] = Message.fromBytes(body);
                 // System.out.println(" [x] Received '" + msgObj_reply[0].getMsg() + "'");
             }
         };
         channel.basicConsume(REQUEST_QUEUE_NAME, true, consumer);
-
     }
 
     public static void propagateResults(){
@@ -174,7 +198,10 @@ public class HashServer {
         channel.queueDeclare(SEND_WORK_QUEUE_NAME, false, false, false, null);
 
         //EXPLAIN: the random is not important, just an example
-        Message msgObj = new Message( chunks.pop());
+        Random rand = new Random();
+        int  n = rand.nextInt(50) + 1;
+        Message msgObj = new Message("Here is your work " + myPartition.getMsg());
+        // Message msgObj = new Message( chunks.pop());
 
         //EXPLAIN: Publish the work to the queue
         channel.basicPublish("", SEND_WORK_QUEUE_NAME, null, msgObj.toBytes());
