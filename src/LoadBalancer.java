@@ -152,18 +152,18 @@ public class LoadBalancer {
         channel.queueDeclare(DISTRIBUTE_QUEUE_NAME, false, false, false, null);
 
         Message msgObj_1 = new Message("partition 1");
-        // Message msgObj_2 = new Message("partition 2");
-        // Message msgObj_3 = new Message("partition 3");
+        Message msgObj_2 = new Message("partition 2");
+        Message msgObj_3 = new Message("partition 3");
         // Message msgObj_4 = new Message("partition 4");
 
         channel.basicPublish("", DISTRIBUTE_QUEUE_NAME, null, msgObj_1.toBytes());
         System.out.println(" [x] Distribute the dictionary" + msgObj_1.getMsg() );
 
-        // channel.basicPublish("", DISTRIBUTE_QUEUE_NAME, null, msgObj_2.toBytes());
-        // System.out.println(" [x] Distribute the dictionary" + msgObj_2.getMsg() );
-        //
-        // channel.basicPublish("", DISTRIBUTE_QUEUE_NAME, null, msgObj_3.toBytes());
-        // System.out.println(" [x] Distribute the dictionary" + msgObj_3.getMsg() );
+        channel.basicPublish("", DISTRIBUTE_QUEUE_NAME, null, msgObj_2.toBytes());
+        System.out.println(" [x] Distribute the dictionary" + msgObj_2.getMsg() );
+
+        channel.basicPublish("", DISTRIBUTE_QUEUE_NAME, null, msgObj_3.toBytes());
+        System.out.println(" [x] Distribute the dictionary" + msgObj_3.getMsg() );
         //
         // channel.basicPublish("", DISTRIBUTE_QUEUE_NAME, null, msgObj_4.toBytes());
         // System.out.println(" [x] Distribute the dictionary" + msgObj_4.getMsg() );
