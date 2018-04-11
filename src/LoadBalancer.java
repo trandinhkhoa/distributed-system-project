@@ -31,7 +31,7 @@ public class LoadBalancer {
     private static ArrayList<String> serverList = new ArrayList<>();
 
     private static Connection connection = null;
-    private static final String RPC_QUEUE_NAME = "rpc_queue";
+    private final static String REQUEST_QUEUE_NAME = "request_queue_lb";
 
     public static void main(String [] args)
     {
@@ -136,80 +136,32 @@ public class LoadBalancer {
         // So it's not producer/consumer, more like reply stuff
         // Every server gets a different chunk
 
-        ConnectionFactory factory = new ConnectionFactory();
-        factory.setHost("localhost");
-
         try {
-            connection = factory.newConnection();
-            final Channel channel = connection.createChannel();
-            channel.queueDeclare(RPC_QUEUE_NAME, false, false, false, null);
-            channel.basicQos(1);
-            System.out.println("[LB] Awaiting RPC requests from servers...");
+            ConnectionFactory factory = new ConnectionFactory();
+            factory.setHost("localhost");
+            Connection connection = factory.newConnection();
+            Channel channel = connection.createChannel();
+
+            channel.queueDeclare(REQUEST_QUEUE_NAME, false, false, false, null);
 
             Consumer consumer = new DefaultConsumer(channel) {
                 @Override
                 public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
-                    AMQP.BasicProperties replyProps = new AMQP.BasicProperties
-                        .Builder()
-                        .correlationId(properties.getCorrelationId())
-                        .build();
-
-                    String reply = new String(body, "UTF-8");
-                    //EXPLAIN: If the client send a message with text "Found!" at the beginning, then dont sendi work, notify the result to the screen instead
-                    if (reply.substring(0,6).equals("Found!"))
-                    {
-                        System.out.println("Eureka ! "+ reply);
-                        channel.basicAck(envelope.getDeliveryTag(), false);
-                        // RabbitMq consumer worker thread notifies the RPC server owner thread
-                        synchronized (this) {
-                            this.notify();
-                        }
-                    } else {
-                        //EXPLAIN: Initialize the object (array, list, whatever) you want to send here
-                        Stack<String> msgContent = new Stack<>();
-                        msgContent.push("HeLLo BoI");
-                        Message msgObj = new Message(msgContent);
-
-                        //Give works to the connected client
-                        try {
-                            System.out.println(" [.] sendWork(" + msgObj.getMsg() + ")");
-
-                        } catch (RuntimeException e) {
-                            System.out.println(" [.] " + e.toString());
-                        } finally {
-                            //EXPLAIN: in this line, msgObj.toBypes() convert the object "msgObj" to bytes, and channel.basicPublish push msgObj.toBytes() to the queue
-                            channel.basicPublish("", properties.getReplyTo(), replyProps, msgObj.toBytes());
-
-                            channel.basicAck(envelope.getDeliveryTag(), false);
-                            // RabbitMq consumer worker thread notifies the RPC server owner thread
-                            synchronized (this) {
-                                this.notify();
-                            }
-                        }
-
-                    }
-                }
-            };
-            channel.basicConsume(RPC_QUEUE_NAME, false, consumer);
-            // Wait and be prepared to consume the message from RPC client.
-            while (true) {
-                synchronized (consumer) {
-                    try {
-                        consumer.wait();
-                    } catch (InterruptedException e) {
+                    Message msgObj = Message.fromBytes(body);
+                    String cmd = msgObj.getMsg().pop();
+                    System.out.println(" [x] Received '" + cmd + "'");
+                    try{
+                        //sendWork(msgObj.getMsg());
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
-            }
+            };
+            channel.basicConsume(REQUEST_QUEUE_NAME, true, consumer);
         } catch (IOException | TimeoutException e) {
-            e.printStackTrace();
-        } finally {
-            if (connection != null)
-                try {
-                    connection.close();
-                } catch (IOException _ignore) {}
+            System.out.println("[LB] Error while distributing dictionary.");
+            System.exit(1);
         }
-
     }
 
 

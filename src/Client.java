@@ -51,7 +51,7 @@ public class Client {
         return new String(hexChars);
     }
 
-    //constructor: connecto the loadbalancer (rabbitmq)
+    //constructor: connect to the loadbalancer (rabbitmq)
     public Client() throws IOException, TimeoutException {
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
@@ -115,6 +115,8 @@ public class Client {
             doWork();
             sendResults();
         }
+
+        System.out.println("[Client] Done.");
     }
 
     private static void getWork(){
