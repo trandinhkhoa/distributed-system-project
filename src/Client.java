@@ -25,9 +25,9 @@ import java.util.Random;
 
 public class Client {
     private static boolean workToDo;
-    private static boolean resultFound;
+    private static boolean resultFound = false;
 
-    private static String inputHash;
+    private static String inputHash = "1aec94002fd3356bb6cc6b37ee736620"; 
     private static String result;
 
     private static Stack<String> work = new Stack<>();
@@ -94,12 +94,12 @@ public class Client {
         // System.out.println("[Client] Connecting to " + args[0] + "...");
         //
         // // Get an message digest instance to compute a hash
-        // try {
-        //     md = java.security.MessageDigest.getInstance("MD5");
-        // } catch (NoSuchAlgorithmException ex) {
-        //     System.out.println("[Client] Unable to get an instance for that hashing algorithm.");
-        //     System.exit(1);
-        // }
+        try {
+            md = java.security.MessageDigest.getInstance("MD5");
+        } catch (NoSuchAlgorithmException ex) {
+            System.out.println("[Client] Unable to get an instance for that hashing algorithm.");
+            System.exit(1);
+        }
 
         // Connection to the load balancer is done via the constructor
         try {
@@ -150,10 +150,12 @@ public class Client {
             public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
                 //EXPLAIN: Handle the event when work arrive from the server
                 //EXPLAIN: Extract the info
-                Message msgObj_reply = Message.fromBytes(body);
-                System.out.println(" [x] Received '" + msgObj_reply.getMsg() + "'");
                 // msgObj_reply[0] = Message.fromBytes(body);
                 // System.out.println(" [x] Received '" + msgObj_reply[0].getMsg() + "'");
+
+                Dictionary dictObj_for_work = Dictionary.fromBytes(body);
+                System.out.println(" [x] Received the work");
+
                 try{
                     channel.close();
                     connection.close();
@@ -162,23 +164,25 @@ public class Client {
                 } 
                 //
                 //EXPLAIN: Do work 
-                doWork(); 
+                doWork(dictObj_for_work); 
             }
         };
         channel.basicConsume(RECV_WORK_QUEUE_NAME, true, consumer);
     }
 
-    private static void doWork(){
-        System.out.println("[Client] Computing hashes...");
-        // while (!work.isEmpty() && !resultFound){
-        //     String currentWord = work.pop();
-        //     String currentHash = bytesToHex(md.digest(currentWord.getBytes()));
-        //     if (currentHash.equals(inputHash)){
-        //         result = currentWord;
-        //         System.out.println("[Client] Password found ! We have \"" + currentWord + "\" which is " + currentHash + ".");
-        //         resultFound = true;
-        //     }
-        // }
+    private static void doWork(Dictionary dictObj_for_work){
+        Stack<String> work = dictObj_for_work.getDict();
+        System.out.println("[Client] Size of the work is " + work.size());
+        while (!work.isEmpty() && !resultFound){
+            String currentWord = work.pop();
+            System.out.println("[Client] Computing hashes... " + currentWord);
+            String currentHash = bytesToHex(md.digest(currentWord.getBytes()));
+            if (currentHash.equals(inputHash)){
+                result = currentWord;
+                System.out.println("[Client] Password found ! We have \"" + currentWord + "\" which is " + currentHash + ".");
+                resultFound = true;
+            }
+        }
     }
 
     // private static void sendResults(){

@@ -23,9 +23,11 @@ public class HashServer {
     //EXPLAIN: declare queue REQUEST_QUEUE_NAME used to receive request 
     private final static String REQUEST_QUEUE_NAME = "request_queue";
     private final static String DISTRIBUTE_QUEUE_NAME = "distribute_queue";
-    private static Message myPartition = new Message("NOTHING"); //placeholder, this is the part of the dictionary the server receveive from the LB
+    
+    // private static Message myPartition = new Message("NOTHING"); //placeholder, this is the part of the dictionary the server receveive from the LB
+    private static Dictionary myPartition = new Dictionary(0); //placeholder, this is the part of the dictionary the server receveive from the LB
 
-    private static Stack<String> bigChunk = new Stack<>();
+    // private static Stack<String> bigChunk = new Stack<>();
     private static Stack<Stack<String>> chunks = new Stack<>();
     private static final Integer chunkSize = 100000;
 
@@ -65,9 +67,9 @@ public class HashServer {
             System.exit(1);
         }
 
-        splitDictionnary();
 
         //Wait and send work
+        //TODO
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
 
@@ -84,6 +86,7 @@ public class HashServer {
                     connection.close();
                 } catch (IOException _ignore) {}
         }
+        
         // propagateResults();
     }
 
@@ -103,10 +106,10 @@ public class HashServer {
         Consumer consumer = new DefaultConsumer(channel) {
             @Override
             public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
-                Message msgObj = Message.fromBytes(body);
-                System.out.println(" [x] Received partition '" + msgObj.getMsg() + "'");
+                Dictionary dictObj = Dictionary.fromBytes(body);
+                System.out.println(" [x] Received partition '" + dictObj.getNumber() + "'");
                 try{
-                    storePartition(msgObj);
+                    storePartition(dictObj);
                 } catch (Exception e) {
                     e.printStackTrace();
                 } 
@@ -117,9 +120,20 @@ public class HashServer {
         channel.basicConsume(DISTRIBUTE_QUEUE_NAME, true, consumer);
     }
 
-    public static void storePartition(Message partition) throws Exception{
+    public static void storePartition(Dictionary partition) throws Exception{
         myPartition = partition; 
-        System.out.println(" [x] Saved my partition '" + myPartition.getMsg() + "'");
+        System.out.println(" [x] Saved my partition '" + myPartition.getNumber() + "'");
+
+        Stack<String> stack = myPartition.getDict();
+
+        // int count = 0;
+        // while ((!stack.empty()) && (count < 10))
+        // {
+        //     System.out.println("Testing... size of small stack is " + stack.size() + " example element = " + stack.pop());
+        //     count++;
+        // }
+
+        splitDictionnary();
     }
 
     public static void waitForClients() throws IOException, TimeoutException {
@@ -167,14 +181,17 @@ public class HashServer {
     }
 
     public static void splitDictionnary(){
+        Stack<String> stack = myPartition.getDict();
         Stack<String> smallerChunk = new Stack<>();
-        while (!bigChunk.empty()){
-            if (chunks.size() < chunkSize){
-                smallerChunk.push(bigChunk.pop());
+
+
+        while (!stack.empty()){
+            if (smallerChunk.size() < chunkSize){
+                smallerChunk.push(stack.pop());
             } else {
                 chunks.push(smallerChunk);
                 smallerChunk = new Stack<>();
-                smallerChunk.push(bigChunk.pop());
+                smallerChunk.push(stack.pop());
             }
         }
 
@@ -185,6 +202,8 @@ public class HashServer {
 
     //EXPLAIN: send the work
     private static int sendWork(String clientID) throws Exception{
+        System.out.println("Testing... Currently I have " + chunks.size() + " chunks");
+
         Connection connection;
         Channel channel;
 
@@ -198,13 +217,13 @@ public class HashServer {
         channel.queueDeclare(SEND_WORK_QUEUE_NAME, false, false, false, null);
 
         //EXPLAIN: the random is not important, just an example
-        Random rand = new Random();
-        int  n = rand.nextInt(50) + 1;
-        Message msgObj = new Message("Here is your work " + myPartition.getMsg());
-        // Message msgObj = new Message( chunks.pop());
+        // Random rand = new Random();
+        // int  n = rand.nextInt(50) + 1;
+        // Message msgObj = new Message("Here is your work " + myPartition.getMsg());
+        Dictionary dictObj = new Dictionary(chunks.pop());
 
         //EXPLAIN: Publish the work to the queue
-        channel.basicPublish("", SEND_WORK_QUEUE_NAME, null, msgObj.toBytes());
+        channel.basicPublish("", SEND_WORK_QUEUE_NAME, null, dictObj.toBytes());
         System.out.println(" [x] Sent to client the work");
         channel.close();
         connection.close();

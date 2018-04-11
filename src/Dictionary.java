@@ -8,17 +8,37 @@ import java.util.Stack;
 //EXPLAIN: The definition of the object you want to send through rabbitMQ queue
 public class Dictionary implements Serializable{
     //EXPLAIN: define attributes, method, constructor of your object class here
-    Stack<String> msg;
-    public Dictionary(Stack<String> msg){
-        this.msg = msg;
+    Stack<String> dict;
+    int number;
+    int inputHash;
+
+    public Dictionary(Stack<String> dict){
+        this.dict = dict;
     }
 
-    public void setMsg(Stack<String> msg){
-        this.msg = msg;
+    public Dictionary(int number){
+        this.number = number;
     }
 
-    public Stack<String> getMsg(){
-        return this.msg;
+    public Dictionary(Stack<String> dict, int number){
+        this.dict = dict;
+        this.number = number;
+    }
+
+    public void setDict(Stack<String> dict){
+        this.dict = dict;
+    }
+
+    public void setNumber(int number){
+        this.number = number;
+    }
+
+    public Stack<String> getDict(){
+        return this.dict;
+    }
+
+    public int getNumber(){
+        return this.number;
     }
 
     //EXPLAIN: mandatory method for converting object to bytes to send. Call this when you want to send an object. You should keep this as it is
