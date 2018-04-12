@@ -30,7 +30,14 @@ public class Client {
     private static String REQUEST_QUEUE_NAME = "request_queue";
 
     private static Message msgObj;
+<<<<<<< HEAD
+    private static String clientID = LocalDateTime.now().toString();
+
+    private static int numberOfServer = 0;
+
+=======
     
+>>>>>>> c6b11b5eb0520d81609e07eb594d1513823d8fcd
     /**
      * Convert an array of bytes into a string that can be compared.
      * @param bytes the bytes to convert
@@ -73,7 +80,6 @@ public class Client {
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
 
-        String clientID = LocalDateTime.now().toString();
         connection = factory.newConnection();
         channel = connection.createChannel();
         channel.queueDeclare(REQUEST_QUEUE_NAME, false, false, false, null);
@@ -108,20 +114,38 @@ public class Client {
                     connection.close();
                 } catch (Exception e) {
                     e.printStackTrace();
+<<<<<<< HEAD
+                } 
+                //
+                //EXPLAIN: Do work 
+                try {
+                    doWork(dictObj_for_work); 
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                }
+=======
                 }
                 //EXPLAIN: Do work
                 doWork(dictObj_for_work);
+>>>>>>> c6b11b5eb0520d81609e07eb594d1513823d8fcd
             }
         };
         channel.basicConsume(RECV_WORK_QUEUE_NAME, true, consumer);
     }
 
+<<<<<<< HEAD
+    private static void doWork(Dictionary dictObj_for_work) throws Exception{
+=======
     /**
      * Compute the hash of every string in the dictionnary we obtained and compare it to the result
      * @param dictObj_for_work the dictionnary object to compute
      */
     private static void doWork(Dictionary dictObj_for_work){
+>>>>>>> c6b11b5eb0520d81609e07eb594d1513823d8fcd
         Stack<String> work = dictObj_for_work.getDict();
+
+        numberOfServer = dictObj_for_work.getNumberMax();
         inputHash = dictObj_for_work.getInputHash();
         System.out.println("[Client] Size of the work is " + work.size());
 
@@ -133,25 +157,33 @@ public class Client {
                 result = currentWord;
                 System.out.println("[Client] Password found ! We have \"" + currentWord + "\" which is " + currentHash + ".");
                 resultFound = true;
+                try {
+                    sendResult(currentWord);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                }
             }
         }
     }
 
-    // private static void sendResults(){
-    //     // send result to out server
-    //     if (resultFound == true){
-    //         try {
-    //             System.out.println("[Client] Result being sent is: " + result);
-    //             msgObj = workRequester.call("RESULT::" + result);
-    //         } catch (IOException | InterruptedException e) {
-    //             e.printStackTrace();
-    //         } finally {
-    //             if (workRequester != null) {
-    //                 try {
-    //                     workRequester.close();
-    //                 } catch (IOException _ignore) {}
-    //             }
-    //         }
-    //     }
-    // }
+    private static void sendResult(String result) throws Exception{
+        // send result to out server
+        ConnectionFactory factory = new ConnectionFactory();
+        factory.setHost("localhost");
+
+        // String clientID = LocalDateTime.now().toString();
+        connection = factory.newConnection();
+        channel = connection.createChannel();
+        channel.queueDeclare(REQUEST_QUEUE_NAME, false, false, false, null);
+        Message msgObj = new Message("[Found]" + result);
+        for (int i = 0; i < numberOfServer; i++){
+            channel.basicPublish("", REQUEST_QUEUE_NAME, null, msgObj.toBytes());
+        }
+        System.out.println(" [!] Sent result '" + result + "'");
+        
+        //close communication after sent the request 
+        channel.close();
+        connection.close();
+    }
 }
