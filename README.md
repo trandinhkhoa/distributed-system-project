@@ -1,24 +1,19 @@
 # distributed-system-project
 
-To compile and use this program, you need to use ant.
+To use the Hash Machine, you need to launch the servers in different terminals, like so:
 
-You can start the main system like so :
+./start.sh server
 
-ant bootstrap -Dhash="hash to find" -Dhostfile="path/to/hostfile" -Ddictfile="path/to/dict"
+Then launch the load balancer :
 
-The servers are launched (for now) like so :
-./src/launch.sh host_file hash rabbitMQ_queue_IP
+./start.sh load_balancer e5bc72b6601283cfff857c7770b257ab ../d.txt
 
-The host file is the list of the servers IP, one IP per line.
-The hash is the hash to compute.
-The rabbitMQ_queue_IP is the IP of the load balancer.
+After those are launched, several clients can be launched in separate terminals.
 
-A client is launched like so :
-
-ant client -Dqueue_ip="IP of rabbitMQ queue"
+./start.sh client
 
 Compiling:
     ant compile
 
-Cleaning the directory:
+Cleaning the build directory:
     ant clean
