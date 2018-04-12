@@ -117,6 +117,7 @@ public class HashServer {
                 if (msgObj.getMsg().substring(0,7).equals("[Found]")){
                     System.out.println("[Found] Original text of MD5 hash string '" + hashString + "' is '" + msgObj.getMsg().substring(7));
                     System.out.println("[New Session] Waiting for new request to inverse hash from LoadBalancer ... ");
+                    chunks.clear();
                 }else{
                     System.out.println("[Server]  [x] Received '" + msgObj.getMsg() + "'");
                     try{
