@@ -1,10 +1,6 @@
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Consumer;
-import com.rabbitmq.client.DefaultConsumer;
-import com.rabbitmq.client.AMQP;
-import com.rabbitmq.client.Envelope;
 
 import java.util.ArrayList;
 import java.io.FileReader;
@@ -13,8 +9,6 @@ import java.util.concurrent.TimeoutException;
 import java.io.FileNotFoundException;
 import java.io.BufferedReader;
 import java.util.Stack;
-
-import org.apache.commons.validator.routines.InetAddressValidator;
 
 public class LoadBalancer {
 
@@ -36,36 +30,21 @@ public class LoadBalancer {
 
     public static void main(String [] args) throws Exception
     {
-        // if (args.length < 3){
         if (args.length < 2){
-            System.out.println("The load balancer need a MD5 hash, a host file and a dictionnary as argument.");
+            System.out.println("[LB] The load balancer need a MD5 hash, a host file and a dictionnary as argument.");
             System.exit(0);
         }
-        //
         hashString = args[0];
-        // hostFile = args[1];
         dictionaryFile = args[1];
-        //
-        // System.out.println("hash: " + hashString + " hostFile: " + hostFile + " dictionaryFile: " + dictionaryFile);
-        System.out.println("hash: " + hashString + " dictionaryFile: " + dictionaryFile);
-        //
-        // try {
-        //     getServersInfo();
-        // } catch (FileNotFoundException e){
-        //     System.err.println("Hostfile not found.\n" + e.getMessage());
-        //     System.exit(1);
-        // } catch (IOException e){
-        //     System.err.println("Unable to read from file:\n" + e.getMessage());
-        //     System.exit(1);
-        // }
-        //
+        System.out.println("[LB] hash: " + hashString + " dictionaryFile: " + dictionaryFile);
+
         try {
             splitDictionnary();
         } catch (FileNotFoundException e){
-            System.err.println("Dictionnary file not found.\n" + e.getMessage());
+            System.err.println("[LB] Dictionnary file not found.\n" + e.getMessage());
             System.exit(1);
         } catch (IOException e){
-            System.err.println("Unable to read from file:\n" + e.getMessage());
+            System.err.println("[LB] Unable to read from file:\n" + e.getMessage());
             System.exit(1);
         }
 
@@ -75,25 +54,6 @@ public class LoadBalancer {
             e.printStackTrace();
         } finally {
         }
-    }
-
-    private static void getServersInfo() throws FileNotFoundException, IOException{
-        System.out.println("[LB] Reading host file...");
-        BufferedReader bufferedReader = new BufferedReader(new FileReader(hostFile));
-        InetAddressValidator addressValidator = new InetAddressValidator();
-
-        String serverIp = bufferedReader.readLine();
-        while (serverIp != null){
-
-            if (addressValidator.getInstance().isValidInet4Address(serverIp) == true){
-                serverList.add(serverIp);
-            } else {
-                System.out.println("[LB] Error processing IP \""+serverIp+"\" is not a valid IPv4 address.");
-            }
-            System.out.println(serverIp);
-            serverIp = bufferedReader.readLine();
-        }
-        numberOfServers = serverList.size();
     }
 
     private static void splitDictionnary() throws IOException{
@@ -139,7 +99,7 @@ public class LoadBalancer {
         for (int i = 0; i < numberOfServers; i++){
             Dictionary dictObj = new Dictionary(bigChunks.pop(), hashString, i);
             channel.basicPublish("", DISTRIBUTE_QUEUE_NAME, null, dictObj.toBytes());
-            System.out.println(" [x] Distribute the dictionary part " + dictObj.getNumber() );
+            System.out.println("[LB]  [x] Distribute the dictionary part " + dictObj.getNumber() );
         }
 
         //close communication after sent the request

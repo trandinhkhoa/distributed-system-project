@@ -11,10 +11,6 @@ import java.util.Stack;
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
-import org.apache.commons.validator.routines.InetAddressValidator;
-
-import java.util.Random;
-
 public class HashServer {
 
     private static String hashString;
