@@ -91,6 +91,7 @@ public class HashServer {
     public static void storePartition(Dictionary partition) throws Exception{
         myPartition = partition;
         hashString = myPartition.getInputHash();
+        System.out.println("[Server]  [x] Size of my partition '" + myPartition.getDict().size() + "'");
         System.out.println("[Server]  [x] Saved my partition '" + myPartition.getNumber() + "'");
 
         splitDictionnary();
@@ -191,7 +192,7 @@ public class HashServer {
             System.out.println("[Server]  [x] Sent to client the work");
         } else {
             System.out.println("[Server] No more part to send to clients.");
-            System.exit(0);
+            // System.exit(0);
         }
 
         //EXPLAIN: Publish the work to the queue

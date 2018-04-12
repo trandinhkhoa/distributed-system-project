@@ -156,6 +156,10 @@ public class Client {
                 }
             }
         }
+
+        if (work.isEmpty() && !resultFound){
+            getWork();
+        }
     }
 
     private static void sendResult(String result) throws Exception{
