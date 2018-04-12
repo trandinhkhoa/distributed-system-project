@@ -50,8 +50,6 @@ This should inverse the md5 hash into the string "TOPPING" (without quotes) (sho
 ./start.sh load_balancer 594f2ba0aaeacf6c9510f445a36217cc ../d.txt 3
 ```
 
-(Remember to tell her the hash and the original string of the hash)
-
 # 2. Phase 2.
 You may need to wait a few moments for the partition to arrive to the servers (When it is done the message "[Server] [x] Saved my partition " will show on the server's terminal)
 Then, several clients (we recommend 3, not too much, enough to see the benefit) can be launched in separate terminals.
