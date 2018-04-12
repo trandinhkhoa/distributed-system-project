@@ -30,9 +30,11 @@ public class Client {
     private static String REQUEST_QUEUE_NAME = "request_queue";
 
     private static Message msgObj;
-
+    
     /**
      * Convert an array of bytes into a string that can be compared.
+     * @param bytes the bytes to convert
+     * @return the bytes as a string
      */
     public static String bytesToHex(byte[] bytes) {
         char[] hexChars = new char[bytes.length * 2];
@@ -62,6 +64,10 @@ public class Client {
 
     }
 
+    /**
+     * Request work a part of the dictionnary from the server.
+     * @throws Exception 
+     */
     private static void getWork() throws Exception{
         //EXPLAIN: Request the work through the common queue for everyone REQUEST_QUEUE_NAME
         ConnectionFactory factory = new ConnectionFactory();
@@ -110,6 +116,10 @@ public class Client {
         channel.basicConsume(RECV_WORK_QUEUE_NAME, true, consumer);
     }
 
+    /**
+     * Compute the hash of every string in the dictionnary we obtained and compare it to the result
+     * @param dictObj_for_work the dictionnary object to compute
+     */
     private static void doWork(Dictionary dictObj_for_work){
         Stack<String> work = dictObj_for_work.getDict();
         inputHash = dictObj_for_work.getInputHash();

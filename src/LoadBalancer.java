@@ -24,8 +24,8 @@ public class LoadBalancer {
 
     private static ArrayList<String> serverList = new ArrayList<>();
 
-    static Connection connection;
-    static Channel channel;
+    private static Connection connection;
+    private static Channel channel;
     private static String DISTRIBUTE_QUEUE_NAME = "distribute_queue";
 
     public static void main(String [] args) throws Exception
@@ -56,6 +56,10 @@ public class LoadBalancer {
         }
     }
 
+    /**
+     * Split a big dictionary into smaller chunks to be sent to the servers.
+     * @throws IOException if the file doesn't exist
+     */
     private static void splitDictionnary() throws IOException{
         BufferedReader reader = new BufferedReader(new FileReader(dictionaryFile));
         System.out.println("[LB] Computing number of words...");
@@ -86,6 +90,10 @@ public class LoadBalancer {
         }
     }
 
+    /**
+     * Send the dictionary parts to all the servers that are there.
+     * @throws Exception 
+     */
     private static void distributeDictionnary() throws Exception{
         System.out.println("[LB] Distributing dictionnary");
 
@@ -107,7 +115,9 @@ public class LoadBalancer {
         connection.close();
     }
 
-
+    /**
+     * Wait for clients to connect to us.
+     */
     private static void waitForClients(){
         System.out.println("[LB] Waiting for clients to connect...");
         System.out.println("[LB] TODO");

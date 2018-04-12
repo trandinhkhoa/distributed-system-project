@@ -54,6 +54,11 @@ public class HashServer {
         // propagateResults();
     }
 
+    /**
+     * Obtain a part of the dictionnary.
+     * @throws IOException
+     * @throws TimeoutException 
+     */
     public static void getDictionnaryPart() throws IOException, TimeoutException{
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
@@ -78,6 +83,11 @@ public class HashServer {
         channel.basicConsume(DISTRIBUTE_QUEUE_NAME, true, consumer);
     }
 
+    /**
+     * Store the received partition of the dictionary.
+     * @param partition the dictionary ot store.
+     * @throws Exception 
+     */
     public static void storePartition(Dictionary partition) throws Exception{
         myPartition = partition;
         System.out.println("[Server]  [x] Saved my partition '" + myPartition.getNumber() + "'");
@@ -87,6 +97,11 @@ public class HashServer {
         splitDictionnary();
     }
 
+    /**
+     * Wait for clients to request works.
+     * @throws IOException
+     * @throws TimeoutException 
+     */
     public static void waitForClients() throws IOException, TimeoutException {
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
@@ -111,11 +126,17 @@ public class HashServer {
         channel.basicConsume(REQUEST_QUEUE_NAME, true, consumer);
     }
 
+    /**
+     * Send the results back to the other servers.
+     */
     public static void propagateResults(){
         // TODO: we send to the other servers the result of our clients
         // is it our job, or the LB job ?
     }
 
+    /**
+     * Split the received dictionary into smaller chunks to be sent to the clients.
+     */
     public static void splitDictionnary(){
         Stack<String> stack = myPartition.getDict();
         Stack<String> smallerChunk = new Stack<>();
@@ -136,8 +157,12 @@ public class HashServer {
         }
     }
 
-    //EXPLAIN: send the work
-    private static int sendWork(String clientID) throws Exception{
+    /**
+     * Send a chunk to a client.
+     * @param clientID the id of the client to send to.
+     * @throws Exception 
+     */
+    private static void sendWork(String clientID) throws Exception{
         System.out.println("[Server] Testing... Currently I have " + chunks.size() + " chunks");
 
         Connection connection;
@@ -165,6 +190,5 @@ public class HashServer {
         //EXPLAIN: Publish the work to the queue
         channel.close();
         connection.close();
-        return 0;
     }
 }
