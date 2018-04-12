@@ -27,7 +27,7 @@ public class Client {
     private static boolean workToDo;
     private static boolean resultFound = false;
 
-    private static String inputHash; 
+    private static String inputHash;
     private static String result;
 
     private static Stack<String> work = new Stack<>();
@@ -53,34 +53,7 @@ public class Client {
         return new String(hexChars);
     }
 
-    //constructor: connect to the loadbalancer (rabbitmq)
-    public Client() throws IOException, TimeoutException {
-        // resultFound = false;
-        // workToDo = true;
-
-        // try {
-        //     inputHash = call("NEW").getMsg().pop();
-        // } catch (InterruptedException e){
-        //     e.printStackTrace();
-        // }
-    }
-
     public static void main (String[] args) throws Exception{
-        // if (args.length < 1){
-        //     System.out.println("The client need an IP to connect to.");
-        //     System.exit(0);
-        // }
-        //
-        // InetAddressValidator addressValidator = new InetAddressValidator();
-        //
-        // if (addressValidator.getInstance().isValidInet4Address(args[0]) == false){
-        //     System.out.println("[Client] Please enter a proper IP address.");
-        //     System.exit(1);
-        // }
-        //
-        // System.out.println("[Client] Connecting to " + args[0] + "...");
-        //
-        // // Get an message digest instance to compute a hash
         try {
             md = java.security.MessageDigest.getInstance("MD5");
         } catch (NoSuchAlgorithmException ex) {
@@ -96,11 +69,6 @@ public class Client {
         } finally {
         }
 
-        // while(workToDo && !resultFound){
-        //     getWork();
-        //     doWork();
-        //     sendResults();
-        // }
     }
 
     private static void getWork() throws Exception{
@@ -115,8 +83,8 @@ public class Client {
         Message msgObj = new Message(clientID);
         channel.basicPublish("", REQUEST_QUEUE_NAME, null, msgObj.toBytes());
         System.out.println(" [x] Requesting for work by " + msgObj.getMsg() );
-        
-        //close communication after sent the request 
+
+        //close communication after sent the request
         channel.close();
         connection.close();
 
@@ -129,15 +97,11 @@ public class Client {
         channel.queueDeclare(RECV_WORK_QUEUE_NAME, false, false, false, null);
         System.out.println(" [*] Waiting for work. To exit press CTRL+C");
 
-        // final Message[] msgObj_reply = new Message[1];
-
         Consumer consumer = new DefaultConsumer(channel) {
             @Override
             public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
                 //EXPLAIN: Handle the event when work arrive from the server
                 //EXPLAIN: Extract the info
-                // msgObj_reply[0] = Message.fromBytes(body);
-                // System.out.println(" [x] Received '" + msgObj_reply[0].getMsg() + "'");
 
                 Dictionary dictObj_for_work = Dictionary.fromBytes(body);
                 System.out.println(" [x] Received the work");
@@ -147,10 +111,9 @@ public class Client {
                     connection.close();
                 } catch (Exception e) {
                     e.printStackTrace();
-                } 
-                //
-                //EXPLAIN: Do work 
-                doWork(dictObj_for_work); 
+                }
+                //EXPLAIN: Do work
+                doWork(dictObj_for_work);
             }
         };
         channel.basicConsume(RECV_WORK_QUEUE_NAME, true, consumer);

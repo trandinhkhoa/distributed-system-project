@@ -23,6 +23,7 @@ public class HashServer {
     //EXPLAIN: declare queue REQUEST_QUEUE_NAME used to receive request 
     private final static String REQUEST_QUEUE_NAME = "request_queue";
     private final static String DISTRIBUTE_QUEUE_NAME = "distribute_queue";
+    private final static String RESULT_QUEUE_NAME = "result_queue";
 
     // private static Message myPartition = new Message("NOTHING"); //placeholder, this is the part of the dictionary the server receveive from the LB
     private static Dictionary myPartition = new Dictionary(0); //placeholder, this is the part of the dictionary the server receveive from the LB
