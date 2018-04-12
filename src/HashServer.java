@@ -115,7 +115,6 @@ public class HashServer {
             @Override
             public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
                 Message msgObj = Message.fromBytes(body);
-<<<<<<< HEAD
                 if (msgObj.getMsg().substring(0,7).equals("[Found]")){
                     System.out.println("[Found] Original text of MD5 hash string '" + hashString + "' is '" + msgObj.getMsg().substring(7));
                     System.out.println("[New Session] Waiting for new request to inverse hash from LoadBalancer ... ");
@@ -129,14 +128,12 @@ public class HashServer {
                 }
                 // msgObj_reply[0] = Message.fromBytes(body);
                 // System.out.println(" [x] Received '" + msgObj_reply[0].getMsg() + "'");
-=======
                 System.out.println("[Server]  [x] Received '" + msgObj.getMsg() + "'");
                 try{
                     sendWork(msgObj.getMsg());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
->>>>>>> c6b11b5eb0520d81609e07eb594d1513823d8fcd
             }
         };
         channel.basicConsume(REQUEST_QUEUE_NAME, true, consumer);

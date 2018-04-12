@@ -30,14 +30,11 @@ public class Client {
     private static String REQUEST_QUEUE_NAME = "request_queue";
 
     private static Message msgObj;
-<<<<<<< HEAD
     private static String clientID = LocalDateTime.now().toString();
 
     private static int numberOfServer = 0;
 
-=======
     
->>>>>>> c6b11b5eb0520d81609e07eb594d1513823d8fcd
     /**
      * Convert an array of bytes into a string that can be compared.
      * @param bytes the bytes to convert
@@ -114,7 +111,6 @@ public class Client {
                     connection.close();
                 } catch (Exception e) {
                     e.printStackTrace();
-<<<<<<< HEAD
                 } 
                 //
                 //EXPLAIN: Do work 
@@ -124,25 +120,20 @@ public class Client {
                     e.printStackTrace();
                 } finally {
                 }
-=======
-                }
+            }
                 //EXPLAIN: Do work
                 doWork(dictObj_for_work);
->>>>>>> c6b11b5eb0520d81609e07eb594d1513823d8fcd
             }
         };
         channel.basicConsume(RECV_WORK_QUEUE_NAME, true, consumer);
     }
 
-<<<<<<< HEAD
     private static void doWork(Dictionary dictObj_for_work) throws Exception{
-=======
     /**
      * Compute the hash of every string in the dictionnary we obtained and compare it to the result
      * @param dictObj_for_work the dictionnary object to compute
      */
     private static void doWork(Dictionary dictObj_for_work){
->>>>>>> c6b11b5eb0520d81609e07eb594d1513823d8fcd
         Stack<String> work = dictObj_for_work.getDict();
 
         numberOfServer = dictObj_for_work.getNumberMax();
