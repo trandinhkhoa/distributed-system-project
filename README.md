@@ -6,12 +6,14 @@
 
 # 0. Compile and clean
 Compiling:
-```
+
+```console
     ant compile
 ```
 
 Cleaning the build directory:
-```
+
+```console
     ant clean
 ```
 
@@ -20,7 +22,9 @@ Cleaning the build directory:
 ## 1.a.
 To use the Hash Machine, you need to launch the servers in different terminals, like so:
 
+```console
 ./start.sh server
+```
 
 
 You should launch several (we recommend 3, not too much, enough to see the benefit) servers at once, but you need to tell the system how many servers are here.
@@ -28,7 +32,7 @@ You should launch several (we recommend 3, not too much, enough to see the benef
 ## 1.b
 Then launch the load balancer :
 
-```
+```console
 ./start.sh load_balancer <hash to find> <dictionary file> <number of server running>
 ```
 
@@ -36,13 +40,13 @@ Examples :
 
 This should inverse the md5 hash into the string "TOO-PERFECT" (without quotes)    (should takes at most 45 seconds)
 
-```
+```console
 ./start.sh load_balancer 2f222bc8380d40245a91a079a3ae70d0 ../d.txt 3
 ```
 
 This should inverse the md5 hash into the string "TOPPING" (without quotes) (should takes at most 45 seconds)
 
-```
+```console
 ./start.sh load_balancer 594f2ba0aaeacf6c9510f445a36217cc ../d.txt 3
 ```
 
@@ -52,7 +56,7 @@ This should inverse the md5 hash into the string "TOPPING" (without quotes) (sho
 You may need to wait a few moments for the partition to arrive to the servers (When it is done the message "[Server] [x] Saved my partition " will show on the server's terminal)
 Then, several clients (we recommend 3, not too much, enough to see the benefit) can be launched in separate terminals.
 
-```
+```console
 ./start.sh client
 ```
 
@@ -61,7 +65,7 @@ Then, several clients (we recommend 3, not too much, enough to see the benefit) 
 
 **start 3 servers**
 
-```
+```console
 ./start.sh server
 
 ./start.sh server
@@ -71,13 +75,13 @@ Then, several clients (we recommend 3, not too much, enough to see the benefit) 
 
 **choose the hash to inverse and split dictionary into 3 servers. This example Hash String should be inverted into "TOPPING"**
 
-```
+```console
 ./start.sh load_balancer 594f2ba0aaeacf6c9510f445a36217cc ../d.txt 3
 ```
 
 **connect the client/worker to do the computation**
 
-```
+```console
 ./start.sh client
 
 ./start.sh client
