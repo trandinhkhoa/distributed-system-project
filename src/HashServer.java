@@ -90,9 +90,8 @@ public class HashServer {
      */
     public static void storePartition(Dictionary partition) throws Exception{
         myPartition = partition;
+        hashString = myPartition.getInputHash();
         System.out.println("[Server]  [x] Saved my partition '" + myPartition.getNumber() + "'");
-
-        Stack<String> stack = myPartition.getDict();
 
         splitDictionnary();
     }
@@ -118,6 +117,7 @@ public class HashServer {
                 if (msgObj.getMsg().substring(0,7).equals("[Found]")){
                     System.out.println("[Found] Original text of MD5 hash string '" + hashString + "' is '" + msgObj.getMsg().substring(7));
                     System.out.println("[New Session] Waiting for new request to inverse hash from LoadBalancer ... ");
+                    chunks.clear();
                 }else{
                     System.out.println("[Server]  [x] Received '" + msgObj.getMsg() + "'");
                     try{
@@ -128,12 +128,6 @@ public class HashServer {
                 }
                 // msgObj_reply[0] = Message.fromBytes(body);
                 // System.out.println(" [x] Received '" + msgObj_reply[0].getMsg() + "'");
-                System.out.println("[Server]  [x] Received '" + msgObj.getMsg() + "'");
-                try{
-                    sendWork(msgObj.getMsg());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
             }
         };
         channel.basicConsume(REQUEST_QUEUE_NAME, true, consumer);
