@@ -20,7 +20,7 @@ public class HashServer {
     private static String hashString;
     private static String loadBalancerIp;
 
-    //EXPLAIN: declare queue REQUEST_QUEUE_NAME used to receive request 
+    //EXPLAIN: declare queue REQUEST_QUEUE_NAME used to receive request
     private final static String REQUEST_QUEUE_NAME = "request_queue";
     private final static String DISTRIBUTE_QUEUE_NAME = "distribute_queue";
 
@@ -76,14 +76,14 @@ public class HashServer {
                     storePartition(dictObj);
                 } catch (Exception e) {
                     e.printStackTrace();
-                } 
+                }
             }
         };
         channel.basicConsume(DISTRIBUTE_QUEUE_NAME, true, consumer);
     }
 
     public static void storePartition(Dictionary partition) throws Exception{
-        myPartition = partition; 
+        myPartition = partition;
         System.out.println("[Server]  [x] Saved my partition '" + myPartition.getNumber() + "'");
 
         Stack<String> stack = myPartition.getDict();
@@ -109,7 +109,7 @@ public class HashServer {
                     sendWork(msgObj.getMsg());
                 } catch (Exception e) {
                     e.printStackTrace();
-                } 
+                }
             }
         };
         channel.basicConsume(REQUEST_QUEUE_NAME, true, consumer);

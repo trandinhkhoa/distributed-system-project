@@ -141,8 +141,8 @@ public class LoadBalancer {
             channel.basicPublish("", DISTRIBUTE_QUEUE_NAME, null, dictObj.toBytes());
             System.out.println(" [x] Distribute the dictionary part " + dictObj.getNumber() );
         }
-        
-        //close communication after sent the request 
+
+        //close communication after sent the request
         channel.close();
         connection.close();
     }
