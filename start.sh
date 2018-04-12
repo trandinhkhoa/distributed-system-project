@@ -6,6 +6,7 @@ if [ $# -eq 0 ] ; then
     exit 0;
 fi
 
+ant compile
 if [ "$1" == "server" ] ; then
     cd build/
     java -cp ../lib/amqp-client-5.1.2.jar:../lib/slf4j-api-1.7.21.jar:../lib/slf4j-simple-1.7.22.jar:. HashServer
