@@ -66,13 +66,6 @@ public class Client {
     }
 
     public static void main (String[] args) throws Exception{
-        // TODO: connect to load balancer
-        // get information
-        // get work
-        // do the work
-        // send results
-        // quit once no more work or result found
-
         // if (args.length < 1){
         //     System.out.println("The client need an IP to connect to.");
         //     System.exit(0);
@@ -111,7 +104,6 @@ public class Client {
     }
 
     private static void getWork() throws Exception{
-        // TODO: request work from server
         //EXPLAIN: Request the work through the common queue for everyone REQUEST_QUEUE_NAME
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
