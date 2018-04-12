@@ -30,9 +30,6 @@ public class LoadBalancer {
 
     private static ArrayList<String> serverList = new ArrayList<>();
 
-    // private static Connection connection = null;
-    // private final static String REQUEST_QUEUE_NAME = "request_queue_lb";
-
     static Connection connection;
     static Channel channel;
     private static String DISTRIBUTE_QUEUE_NAME = "distribute_queue";
@@ -148,12 +145,6 @@ public class LoadBalancer {
         // So it's not producer/consumer, more like reply stuff
         // Every server gets a different chunk
 
-        // System.out.println("Testing... size of Dict is " + bigChunks.size());
-        // while (!bigChunks.empty()){
-        //     Stack<String> stack = bigChunks.pop();
-        //     System.out.println("Testing... size of small stack is " + stack.size() + " example element = " + stack.pop());
-        // }
-        //
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
 
@@ -161,21 +152,11 @@ public class LoadBalancer {
         channel = connection.createChannel();
         channel.queueDeclare(DISTRIBUTE_QUEUE_NAME, false, false, false, null);
 
-        // Message msgObj_1 = new Message("partition 1");
-        Dictionary dictObj_1 = new Dictionary(bigChunks.pop(), 1);
-        Dictionary dictObj_2 = new Dictionary(bigChunks.pop(), 2);
-
-        // Message msgObj_2 = new Message("partition 2");
-        // Message msgObj_3 = new Message("partition 3");
-
-        channel.basicPublish("", DISTRIBUTE_QUEUE_NAME, null, dictObj_1.toBytes());
-        System.out.println(" [x] Distribute the dictionary part " + dictObj_1.getNumber() );
-
-        channel.basicPublish("", DISTRIBUTE_QUEUE_NAME, null, dictObj_2.toBytes());
-        System.out.println(" [x] Distribute the dictionary" + dictObj_2.getNumber() );
-        //
-        // channel.basicPublish("", DISTRIBUTE_QUEUE_NAME, null, msgObj_3.toBytes());
-        // System.out.println(" [x] Distribute the dictionary" + msgObj_3.getMsg() );
+        for (int i = 0; i < numberOfServers; i++){
+            Dictionary dictObj = new Dictionary(bigChunks.pop(), i);
+            channel.basicPublish("", DISTRIBUTE_QUEUE_NAME, null, dictObj.toBytes());
+            System.out.println(" [x] Distribute the dictionary part " + dictObj.getNumber() );
+        }
         
         //close communication after sent the request 
         channel.close();
