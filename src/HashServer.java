@@ -91,6 +91,7 @@ public class HashServer {
      * @throws Exception 
      */
     public static void storePartition(Dictionary partition) throws Exception{
+        resultFound = false;
         myPartition = partition;
         hashString = myPartition.getInputHash();
         System.out.println("[Server]  [x] Size of my partition '" + myPartition.getDict().size() + "'");
