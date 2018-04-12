@@ -22,7 +22,7 @@ public class HashServer {
 
     private static Dictionary myPartition = new Dictionary(0); //placeholder, this is the part of the dictionary the server receveive from the LB
 
-    private static Stack<Stack<String>> chunks = new Stack<>();
+    private static Stack<Stack<String>> chunks;
     private static final Integer chunkSize = 100000;
 
     public static void main (String[] args){
@@ -153,6 +153,7 @@ public class HashServer {
     public static void splitDictionnary(){
         Stack<String> stack = myPartition.getDict();
         Stack<String> smallerChunk = new Stack<>();
+        chunks = new Stack<>();
 
 
         while (!stack.empty()){
