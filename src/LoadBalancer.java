@@ -18,7 +18,7 @@ public class LoadBalancer {
 
     private static int bigChunkSize;
     private static int numberOfWords;
-    private static int numberOfServers = 3;
+    private static int numberOfServers;
 
     private static Stack<Stack<String>> bigChunks = new Stack<>();
 
@@ -30,13 +30,16 @@ public class LoadBalancer {
 
     public static void main(String [] args) throws Exception
     {
-        if (args.length < 2){
-            System.out.println("[LB] The load balancer need a MD5 hash, a host file and a dictionnary as argument.");
+        if (args.length < 3){
+            System.out.println("[LB] We need a MD5 hash, a dictionnary and the number of servers  as argument.");
             System.exit(0);
         }
         hashString = args[0];
         dictionaryFile = args[1];
-        System.out.println("[LB] hash: " + hashString + " dictionaryFile: " + dictionaryFile);
+        numberOfServers = Integer.parseInt(args[2]);
+        System.out.println("[LB] MD5 hash: " + hashString);
+        System.out.println("[LB] Dictionary file: " + dictionaryFile);
+        System.out.println("[LB] Using " + numberOfServers + " server(s).");
 
         try {
             splitDictionnary();
