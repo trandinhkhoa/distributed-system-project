@@ -10,7 +10,7 @@ public class Dictionary implements Serializable{
     //EXPLAIN: define attributes, method, constructor of your object class here
     Stack<String> dict;
     int number;
-    int inputHash;
+    String inputHash;
 
     public Dictionary(Stack<String> dict){
         this.dict = dict;
@@ -25,6 +25,17 @@ public class Dictionary implements Serializable{
         this.number = number;
     }
 
+    public Dictionary(Stack<String> dict, String inputHash){
+        this.dict = dict;
+        this.inputHash = inputHash;
+    }
+
+    public Dictionary(Stack<String> dict, String inputHash, int number){
+        this.dict = dict;
+        this.inputHash = inputHash;
+        this.number = number;
+    }
+
     public void setDict(Stack<String> dict){
         this.dict = dict;
     }
@@ -33,12 +44,20 @@ public class Dictionary implements Serializable{
         this.number = number;
     }
 
+    public void setInputHash(String inputHash){
+        this.inputHash = inputHash;
+    }
+
     public Stack<String> getDict(){
         return this.dict;
     }
 
     public int getNumber(){
         return this.number;
+    }
+
+    public String getInputHash(){
+        return this.inputHash;
     }
 
     //EXPLAIN: mandatory method for converting object to bytes to send. Call this when you want to send an object. You should keep this as it is

@@ -43,17 +43,17 @@ public class LoadBalancer {
         // then we switch to lsiten mode for clients to connect
 
         // if (args.length < 3){
-        if (args.length < 1){
+        if (args.length < 2){
             System.out.println("The load balancer need a MD5 hash, a host file and a dictionnary as argument.");
             System.exit(0);
         }
         //
-        // hashString = args[0];
+        hashString = args[0];
         // hostFile = args[1];
-        dictionaryFile = args[0];
+        dictionaryFile = args[1];
         //
         // System.out.println("hash: " + hashString + " hostFile: " + hostFile + " dictionaryFile: " + dictionaryFile);
-        System.out.println("dictionaryFile: " + dictionaryFile);
+        System.out.println("hash: " + hashString + " dictionaryFile: " + dictionaryFile);
         //
         // try {
         //     getServersInfo();
@@ -153,7 +153,7 @@ public class LoadBalancer {
         channel.queueDeclare(DISTRIBUTE_QUEUE_NAME, false, false, false, null);
 
         for (int i = 0; i < numberOfServers; i++){
-            Dictionary dictObj = new Dictionary(bigChunks.pop(), i);
+            Dictionary dictObj = new Dictionary(bigChunks.pop(), hashString, i);
             channel.basicPublish("", DISTRIBUTE_QUEUE_NAME, null, dictObj.toBytes());
             System.out.println(" [x] Distribute the dictionary part " + dictObj.getNumber() );
         }

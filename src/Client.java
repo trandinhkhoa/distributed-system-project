@@ -27,7 +27,8 @@ public class Client {
     private static boolean workToDo;
     private static boolean resultFound = false;
 
-    private static String inputHash = "1aec94002fd3356bb6cc6b37ee736620"; 
+    // private static String inputHash = "1aec94002fd3356bb6cc6b37ee736620"; 
+    private static String inputHash; 
     private static String result;
 
     private static Stack<String> work = new Stack<>();
@@ -172,7 +173,9 @@ public class Client {
 
     private static void doWork(Dictionary dictObj_for_work){
         Stack<String> work = dictObj_for_work.getDict();
+        inputHash = dictObj_for_work.getInputHash();
         System.out.println("[Client] Size of the work is " + work.size());
+
         while (!work.isEmpty() && !resultFound){
             String currentWord = work.pop();
             System.out.println("[Client] Computing hashes... " + currentWord);

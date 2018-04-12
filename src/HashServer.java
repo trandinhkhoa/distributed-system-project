@@ -220,7 +220,7 @@ public class HashServer {
         // Random rand = new Random();
         // int  n = rand.nextInt(50) + 1;
         // Message msgObj = new Message("Here is your work " + myPartition.getMsg());
-        Dictionary dictObj = new Dictionary(chunks.pop());
+        Dictionary dictObj = new Dictionary(chunks.pop(), myPartition.getInputHash());
 
         //EXPLAIN: Publish the work to the queue
         channel.basicPublish("", SEND_WORK_QUEUE_NAME, null, dictObj.toBytes());
