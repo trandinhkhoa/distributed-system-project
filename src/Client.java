@@ -6,7 +6,11 @@ import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Envelope;
 
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeoutException;
 import java.io.IOException;
+import java.util.UUID;
 import java.util.concurrent.TimeoutException;
 
 import java.util.Stack;
@@ -121,9 +125,6 @@ public class Client {
                 } finally {
                 }
             }
-                //EXPLAIN: Do work
-                doWork(dictObj_for_work);
-            }
         };
         channel.basicConsume(RECV_WORK_QUEUE_NAME, true, consumer);
     }
@@ -133,7 +134,6 @@ public class Client {
      * Compute the hash of every string in the dictionnary we obtained and compare it to the result
      * @param dictObj_for_work the dictionnary object to compute
      */
-    private static void doWork(Dictionary dictObj_for_work){
         Stack<String> work = dictObj_for_work.getDict();
 
         numberOfServer = dictObj_for_work.getNumberMax();
