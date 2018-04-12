@@ -141,12 +141,17 @@ public class HashServer {
             @Override
             public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
                 Message msgObj = Message.fromBytes(body);
-                System.out.println("[Server]  [x] Received '" + msgObj.getMsg() + "'");
-                try{
-                    sendWork(msgObj.getMsg());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                } 
+                if (msgObj.getMsg().substring(0,7).equals("[Found]")){
+                    System.out.println("[Found] Original text of MD5 hash string '" + hashString + "' is '" + msgObj.getMsg().substring(7));
+                    System.out.println("[New Session] Waiting for new request to inverse hash from LoadBalancer ... ");
+                }else{
+                    System.out.println("[Server]  [x] Received '" + msgObj.getMsg() + "'");
+                    try{
+                        sendWork(msgObj.getMsg());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    } 
+                }
                 // msgObj_reply[0] = Message.fromBytes(body);
                 // System.out.println(" [x] Received '" + msgObj_reply[0].getMsg() + "'");
             }
@@ -197,7 +202,7 @@ public class HashServer {
         channel.queueDeclare(SEND_WORK_QUEUE_NAME, false, false, false, null);
 
         if (!chunks.isEmpty()){
-            dictObj = new Dictionary(chunks.pop(), myPartition.getInputHash());
+            dictObj = new Dictionary(chunks.pop(), myPartition.getInputHash(), myPartition.getNumber(), myPartition.getNumberMax());
             channel.basicPublish("", SEND_WORK_QUEUE_NAME, null, dictObj.toBytes());
             System.out.println("[Server]  [x] Sent to client the work");
         } else {

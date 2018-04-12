@@ -137,7 +137,7 @@ public class LoadBalancer {
         channel.queueDeclare(DISTRIBUTE_QUEUE_NAME, false, false, false, null);
 
         for (int i = 0; i < numberOfServers; i++){
-            Dictionary dictObj = new Dictionary(bigChunks.pop(), hashString, i);
+            Dictionary dictObj = new Dictionary(bigChunks.pop(), hashString, i, numberOfServers);
             channel.basicPublish("", DISTRIBUTE_QUEUE_NAME, null, dictObj.toBytes());
             System.out.println(" [x] Distribute the dictionary part " + dictObj.getNumber() );
         }
