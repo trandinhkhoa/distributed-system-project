@@ -11,45 +11,21 @@ import java.util.Stack;
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
-import org.apache.commons.validator.routines.InetAddressValidator;
-
-import java.util.Random;
-
 public class HashServer {
 
     private static String hashString;
     private static String loadBalancerIp;
 
-    //EXPLAIN: declare queue REQUEST_QUEUE_NAME used to receive request 
+    //EXPLAIN: declare queue REQUEST_QUEUE_NAME used to receive request
     private final static String REQUEST_QUEUE_NAME = "request_queue";
     private final static String DISTRIBUTE_QUEUE_NAME = "distribute_queue";
 
-    // private static Message myPartition = new Message("NOTHING"); //placeholder, this is the part of the dictionary the server receveive from the LB
     private static Dictionary myPartition = new Dictionary(0); //placeholder, this is the part of the dictionary the server receveive from the LB
 
-    // private static Stack<String> bigChunk = new Stack<>();
     private static Stack<Stack<String>> chunks = new Stack<>();
     private static final Integer chunkSize = 100000;
 
     public static void main (String[] args){
-        // if (args.length < 2){
-        //     System.out.println("A server need a MD5 hash, and a rabbitMQ IP to connect to.");
-        //     System.exit(0);
-        // }
-        //
-        // hashString = args[0];
-        // loadBalancerIp = args[1];
-        //
-        // InetAddressValidator addressValidator = new InetAddressValidator();
-        // if (addressValidator.getInstance().isValidInet4Address(loadBalancerIp) == false){
-        //     System.out.println("[Server] Please enter a proper IP address.");
-        //     System.exit(1);
-        // }
-        
-        // System.out.println("[Server] Starting...");
-        // System.out.println("[Server] hash: " + hashString);
-        // System.out.println("[Server] loadBalancerIp: " + loadBalancerIp);
-
         try {
             getDictionnaryPart();
         } catch (IOException | TimeoutException e){
@@ -57,7 +33,6 @@ public class HashServer {
             System.out.println(e.getMessage());
             System.exit(1);
         }
-
 
         //Wait and send work
         ConnectionFactory factory = new ConnectionFactory();
@@ -76,21 +51,22 @@ public class HashServer {
                     connection.close();
                 } catch (IOException _ignore) {}
         }
-        
         // propagateResults();
     }
 
+    /**
+     * Obtain a part of the dictionnary.
+     * @throws IOException
+     * @throws TimeoutException 
+     */
     public static void getDictionnaryPart() throws IOException, TimeoutException{
         ConnectionFactory factory = new ConnectionFactory();
-        // factory.setHost(loadBalancerIp);
         factory.setHost("localhost");
         Connection connection = factory.newConnection();
         Channel channel = connection.createChannel();
 
         channel.queueDeclare(DISTRIBUTE_QUEUE_NAME, false, false, false, null);
         System.out.println("[Server]  [*] Waiting for a Dictionary Partition. To exit press CTRL+C");
-
-        // final Message[] msgObj_reply = new Message[1];
 
         Consumer consumer = new DefaultConsumer(channel) {
             @Override
@@ -101,16 +77,19 @@ public class HashServer {
                     storePartition(dictObj);
                 } catch (Exception e) {
                     e.printStackTrace();
-                } 
-                // msgObj_reply[0] = Message.fromBytes(body);
-                // System.out.println(" [x] Received '" + msgObj_reply[0].getMsg() + "'");
+                }
             }
         };
         channel.basicConsume(DISTRIBUTE_QUEUE_NAME, true, consumer);
     }
 
+    /**
+     * Store the received partition of the dictionary.
+     * @param partition the dictionary ot store.
+     * @throws Exception 
+     */
     public static void storePartition(Dictionary partition) throws Exception{
-        myPartition = partition; 
+        myPartition = partition;
         System.out.println("[Server]  [x] Saved my partition '" + myPartition.getNumber() + "'");
 
         Stack<String> stack = myPartition.getDict();
@@ -118,15 +97,12 @@ public class HashServer {
         splitDictionnary();
     }
 
+    /**
+     * Wait for clients to request works.
+     * @throws IOException
+     * @throws TimeoutException 
+     */
     public static void waitForClients() throws IOException, TimeoutException {
-        // 4 types of requests
-        // "NEW" : send a stack with one string: the hash
-        // "WORK" : send a stack with work to do
-        // "RESULT::"  : propagate result, stop wating
-
-        // We send :
-        // null : no more work to do
-
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
         Connection connection = factory.newConnection();
@@ -135,35 +111,32 @@ public class HashServer {
         channel.queueDeclare(REQUEST_QUEUE_NAME, false, false, false, null);
         System.out.println("[Server]  [*] Waiting for requests. To exit press CTRL+C");
 
-        // final Message[] msgObj_reply = new Message[1];
-
         Consumer consumer = new DefaultConsumer(channel) {
             @Override
             public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
                 Message msgObj = Message.fromBytes(body);
-                if (msgObj.getMsg().substring(0,7).equals("[Found]")){
-                    System.out.println("[Found] Original text of MD5 hash string '" + hashString + "' is '" + msgObj.getMsg().substring(7));
-                    System.out.println("[New Session] Waiting for new request to inverse hash from LoadBalancer ... ");
-                }else{
-                    System.out.println("[Server]  [x] Received '" + msgObj.getMsg() + "'");
-                    try{
-                        sendWork(msgObj.getMsg());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    } 
+                System.out.println("[Server]  [x] Received '" + msgObj.getMsg() + "'");
+                try{
+                    sendWork(msgObj.getMsg());
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-                // msgObj_reply[0] = Message.fromBytes(body);
-                // System.out.println(" [x] Received '" + msgObj_reply[0].getMsg() + "'");
             }
         };
         channel.basicConsume(REQUEST_QUEUE_NAME, true, consumer);
     }
 
+    /**
+     * Send the results back to the other servers.
+     */
     public static void propagateResults(){
         // TODO: we send to the other servers the result of our clients
         // is it our job, or the LB job ?
     }
 
+    /**
+     * Split the received dictionary into smaller chunks to be sent to the clients.
+     */
     public static void splitDictionnary(){
         Stack<String> stack = myPartition.getDict();
         Stack<String> smallerChunk = new Stack<>();
@@ -184,8 +157,12 @@ public class HashServer {
         }
     }
 
-    //EXPLAIN: send the work
-    private static int sendWork(String clientID) throws Exception{
+    /**
+     * Send a chunk to a client.
+     * @param clientID the id of the client to send to.
+     * @throws Exception 
+     */
+    private static void sendWork(String clientID) throws Exception{
         System.out.println("[Server] Testing... Currently I have " + chunks.size() + " chunks");
 
         Connection connection;
@@ -202,7 +179,7 @@ public class HashServer {
         channel.queueDeclare(SEND_WORK_QUEUE_NAME, false, false, false, null);
 
         if (!chunks.isEmpty()){
-            dictObj = new Dictionary(chunks.pop(), myPartition.getInputHash(), myPartition.getNumber(), myPartition.getNumberMax());
+            dictObj = new Dictionary(chunks.pop(), myPartition.getInputHash());
             channel.basicPublish("", SEND_WORK_QUEUE_NAME, null, dictObj.toBytes());
             System.out.println("[Server]  [x] Sent to client the work");
         } else {
@@ -213,6 +190,5 @@ public class HashServer {
         //EXPLAIN: Publish the work to the queue
         channel.close();
         connection.close();
-        return 0;
     }
 }

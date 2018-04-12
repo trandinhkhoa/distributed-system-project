@@ -1,6 +1,3 @@
-// import java.io.ByteArrayOutputStream;
-// import java.io.Serializable;
-// import java.io.IOException;
 import java.io.*;
 
 //EXPLAIN: The definition of the object you want to send through rabbitMQ queue

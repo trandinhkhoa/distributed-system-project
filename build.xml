@@ -30,7 +30,7 @@
         <pathelement location="lib/slf4j-simple-1.7.22.jar" />
         <pathelement location="lib/commons-validator-1.6.jar" />
     </path>
-    <javac srcdir="${src.dir}" destdir="${build.dir}" classpathref="classpath">
+    <javac srcdir="${src.dir}" destdir="${build.dir}" classpathref="classpath" includeantruntime="false">
         <compilerarg value="-Xlint:unchecked" /> 
     </javac>
 </target>
