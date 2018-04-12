@@ -54,8 +54,8 @@ Then, several clients (we recommend 3, not too much, enough to see the benefit) 
 
 ./start.sh server
 
-# choose the hash to inverse and split dictionary into 3 servers 
-./start.sh load_balancer 2f222bc8380d40245a91a079a3ae70d0 ../d.txt 3
+# choose the hash to inverse and split dictionary into 3 servers. This example Hash String should be inverted into "TOPPING" 
+./start.sh load_balancer 594f2ba0aaeacf6c9510f445a36217cc ../d.txt 3
 
 # connect the client/worker to do the computation
 ./start.sh client
