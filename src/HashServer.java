@@ -126,13 +126,6 @@ public class HashServer {
 
         Stack<String> stack = myPartition.getDict();
 
-        // int count = 0;
-        // while ((!stack.empty()) && (count < 10))
-        // {
-        //     System.out.println("Testing... size of small stack is " + stack.size() + " example element = " + stack.pop());
-        //     count++;
-        // }
-
         splitDictionnary();
     }
 
@@ -217,9 +210,6 @@ public class HashServer {
         channel.queueDeclare(SEND_WORK_QUEUE_NAME, false, false, false, null);
 
         //EXPLAIN: the random is not important, just an example
-        // Random rand = new Random();
-        // int  n = rand.nextInt(50) + 1;
-        // Message msgObj = new Message("Here is your work " + myPartition.getMsg());
         Dictionary dictObj = new Dictionary(chunks.pop(), myPartition.getInputHash());
 
         //EXPLAIN: Publish the work to the queue

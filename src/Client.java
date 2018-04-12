@@ -27,19 +27,12 @@ public class Client {
     private static boolean workToDo;
     private static boolean resultFound = false;
 
-    // private static String inputHash = "1aec94002fd3356bb6cc6b37ee736620"; 
     private static String inputHash; 
     private static String result;
 
     private static Stack<String> work = new Stack<>();
     private static MessageDigest md;
     private final static char[] hexDigits = "0123456789abcdef".toCharArray();
-
-    // private String requestQueueName = "rpc_queue";
-    // private static Client workRequester = null;
-    // private static Connection connection = null;
-    // private static Channel channel = null;
-    // private static String replyQueueName;
 
     static Connection connection;
     static Channel channel;
