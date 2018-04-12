@@ -23,34 +23,13 @@ public class HashServer {
     //EXPLAIN: declare queue REQUEST_QUEUE_NAME used to receive request 
     private final static String REQUEST_QUEUE_NAME = "request_queue";
     private final static String DISTRIBUTE_QUEUE_NAME = "distribute_queue";
-    private final static String RESULT_QUEUE_NAME = "result_queue";
 
-    // private static Message myPartition = new Message("NOTHING"); //placeholder, this is the part of the dictionary the server receveive from the LB
     private static Dictionary myPartition = new Dictionary(0); //placeholder, this is the part of the dictionary the server receveive from the LB
 
-    // private static Stack<String> bigChunk = new Stack<>();
     private static Stack<Stack<String>> chunks = new Stack<>();
     private static final Integer chunkSize = 100000;
 
     public static void main (String[] args){
-        // if (args.length < 2){
-        //     System.out.println("A server need a MD5 hash, and a rabbitMQ IP to connect to.");
-        //     System.exit(0);
-        // }
-        //
-        // hashString = args[0];
-        // loadBalancerIp = args[1];
-        //
-        // InetAddressValidator addressValidator = new InetAddressValidator();
-        // if (addressValidator.getInstance().isValidInet4Address(loadBalancerIp) == false){
-        //     System.out.println("[Server] Please enter a proper IP address.");
-        //     System.exit(1);
-        // }
-        
-        // System.out.println("[Server] Starting...");
-        // System.out.println("[Server] hash: " + hashString);
-        // System.out.println("[Server] loadBalancerIp: " + loadBalancerIp);
-
         try {
             getDictionnaryPart();
         } catch (IOException | TimeoutException e){
@@ -58,7 +37,6 @@ public class HashServer {
             System.out.println(e.getMessage());
             System.exit(1);
         }
-
 
         //Wait and send work
         ConnectionFactory factory = new ConnectionFactory();
@@ -77,21 +55,17 @@ public class HashServer {
                     connection.close();
                 } catch (IOException _ignore) {}
         }
-        
         // propagateResults();
     }
 
     public static void getDictionnaryPart() throws IOException, TimeoutException{
         ConnectionFactory factory = new ConnectionFactory();
-        // factory.setHost(loadBalancerIp);
         factory.setHost("localhost");
         Connection connection = factory.newConnection();
         Channel channel = connection.createChannel();
 
         channel.queueDeclare(DISTRIBUTE_QUEUE_NAME, false, false, false, null);
         System.out.println("[Server]  [*] Waiting for a Dictionary Partition. To exit press CTRL+C");
-
-        // final Message[] msgObj_reply = new Message[1];
 
         Consumer consumer = new DefaultConsumer(channel) {
             @Override
@@ -103,8 +77,6 @@ public class HashServer {
                 } catch (Exception e) {
                     e.printStackTrace();
                 } 
-                // msgObj_reply[0] = Message.fromBytes(body);
-                // System.out.println(" [x] Received '" + msgObj_reply[0].getMsg() + "'");
             }
         };
         channel.basicConsume(DISTRIBUTE_QUEUE_NAME, true, consumer);
@@ -120,14 +92,6 @@ public class HashServer {
     }
 
     public static void waitForClients() throws IOException, TimeoutException {
-        // 4 types of requests
-        // "NEW" : send a stack with one string: the hash
-        // "WORK" : send a stack with work to do
-        // "RESULT::"  : propagate result, stop wating
-
-        // We send :
-        // null : no more work to do
-
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
         Connection connection = factory.newConnection();
@@ -135,8 +99,6 @@ public class HashServer {
 
         channel.queueDeclare(REQUEST_QUEUE_NAME, false, false, false, null);
         System.out.println("[Server]  [*] Waiting for requests. To exit press CTRL+C");
-
-        // final Message[] msgObj_reply = new Message[1];
 
         Consumer consumer = new DefaultConsumer(channel) {
             @Override
@@ -148,8 +110,6 @@ public class HashServer {
                 } catch (Exception e) {
                     e.printStackTrace();
                 } 
-                // msgObj_reply[0] = Message.fromBytes(body);
-                // System.out.println(" [x] Received '" + msgObj_reply[0].getMsg() + "'");
             }
         };
         channel.basicConsume(REQUEST_QUEUE_NAME, true, consumer);
