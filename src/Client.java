@@ -118,11 +118,16 @@ public class Client {
                 } 
                 //
                 //EXPLAIN: Do work 
-                try {
-                    doWork(dictObj_for_work); 
-                } catch (Exception e) {
-                    e.printStackTrace();
-                } finally {
+                if (!dictObj_for_work.getResultFound()){
+                    try {
+                        doWork(dictObj_for_work); 
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    } finally {
+                    }
+                }else {
+                    System.out.println("Result already found. Stop request");
+                    System.exit(0);
                 }
             }
         };

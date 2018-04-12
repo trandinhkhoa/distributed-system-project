@@ -8,6 +8,7 @@ public class Dictionary implements Serializable{
     int number;
     int numberMax;
     String inputHash;
+    boolean resultFound;
 
     public Dictionary(Stack<String> dict){
         this.dict = dict;
@@ -40,6 +41,18 @@ public class Dictionary implements Serializable{
         this.numberMax = numberMax;
     }
 
+    public Dictionary(Stack<String> dict, String inputHash, int number, int numberMax, boolean resultFound){
+        this.dict = dict;
+        this.inputHash = inputHash;
+        this.number = number;
+        this.numberMax = numberMax;
+        this.resultFound = resultFound;
+    }
+
+    public void setResultFound(boolean resultFound){
+        this.resultFound = resultFound;
+    }
+
     public void setDict(Stack<String> dict){
         this.dict = dict;
     }
@@ -54,6 +67,10 @@ public class Dictionary implements Serializable{
 
     public void setNumberMax(int numberMax){
         this.numberMax = numberMax;
+    }
+
+    public boolean getResultFound(){
+        return this.resultFound;
     }
 
     public Stack<String> getDict(){

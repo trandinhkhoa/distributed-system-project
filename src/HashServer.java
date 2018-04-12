@@ -25,6 +25,8 @@ public class HashServer {
     private static Stack<Stack<String>> chunks = new Stack<>();
     private static final Integer chunkSize = 100000;
 
+    private static boolean resultFound = false;
+
     public static void main (String[] args){
         try {
             getDictionnaryPart();
@@ -119,8 +121,9 @@ public class HashServer {
                     System.out.println("[Found] Original text of MD5 hash string '" + hashString + "' is '" + msgObj.getMsg().substring(7));
                     System.out.println("[New Session] Waiting for new request to inverse hash from LoadBalancer ... ");
                     chunks.clear();
+                    resultFound = true;
                 }else{
-                    System.out.println("[Server]  [x] Received '" + msgObj.getMsg() + "'");
+                    System.out.println("[Server]  [x] Received from client '" + msgObj.getMsg() + "'");
                     try{
                         sendWork(msgObj.getMsg());
                     } catch (Exception e) {
@@ -186,13 +189,20 @@ public class HashServer {
         channel = connection.createChannel();
         channel.queueDeclare(SEND_WORK_QUEUE_NAME, false, false, false, null);
 
-        if (!chunks.isEmpty()){
-            dictObj = new Dictionary(chunks.pop(), myPartition.getInputHash(), myPartition.getNumber(), myPartition.getNumberMax());
-            channel.basicPublish("", SEND_WORK_QUEUE_NAME, null, dictObj.toBytes());
-            System.out.println("[Server]  [x] Sent to client the work");
-        } else {
-            System.out.println("[Server] No more part to send to clients.");
-            // System.exit(0);
+        if (!resultFound)
+        {
+            if (!chunks.isEmpty()){
+                dictObj = new Dictionary(chunks.pop(), myPartition.getInputHash(), myPartition.getNumber(), myPartition.getNumberMax());
+                channel.basicPublish("", SEND_WORK_QUEUE_NAME, null, dictObj.toBytes());
+                System.out.println("[Server]  [x] Sent to client the work");
+            } else {
+                System.out.println("[Server] No more part to send to clients.");
+                // System.exit(0);
+            }
+        } else{
+                Stack<String> emptyStack = new Stack<String>(); 
+                dictObj = new Dictionary(emptyStack, myPartition.getInputHash(), myPartition.getNumber(), myPartition.getNumberMax(), resultFound);
+                channel.basicPublish("", SEND_WORK_QUEUE_NAME, null, dictObj.toBytes());
         }
 
         //EXPLAIN: Publish the work to the queue
