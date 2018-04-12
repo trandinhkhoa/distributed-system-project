@@ -36,12 +36,6 @@ public class LoadBalancer {
 
     public static void main(String [] args) throws Exception
     {
-        // TODO: launch all the servers
-        // put the parts of the file in a queue
-        // the servers take their part from the queue
-
-        // then we switch to lsiten mode for clients to connect
-
         // if (args.length < 3){
         if (args.length < 2){
             System.out.println("The load balancer need a MD5 hash, a host file and a dictionnary as argument.");
@@ -107,8 +101,7 @@ public class LoadBalancer {
         System.out.println("[LB] Computing number of words...");
         while (reader.readLine() != null) numberOfWords++;
         reader.close();
-        System.out.println("[LB] Num of words:" + numberOfWords);
-        
+        System.out.println("[LB] Number of words:" + numberOfWords);
         bigChunkSize = numberOfWords/numberOfServers;
         System.out.println("[LB] Maximum chunksize : " + bigChunkSize);
 
@@ -126,7 +119,6 @@ public class LoadBalancer {
                 stack = new Stack<>();
                 stack.add(s);
             }
-            // TODO: limit password size in the dictionnary ?
             s = reader.readLine();
         }
         if (!stack.empty()){
@@ -135,15 +127,7 @@ public class LoadBalancer {
     }
 
     private static void distributeDictionnary() throws Exception{
-        // TODO: put the file parts into a rabbitMQ queue
-        // the servers will get the parts of the file
-        // when the queue is empty, the function is over
         System.out.println("[LB] Distributing dictionnary");
-        // TODO: create a queue
-        // when it's empty, it's over
-        // A server connect to the queue, get one chunk
-        // So it's not producer/consumer, more like reply stuff
-        // Every server gets a different chunk
 
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
@@ -165,7 +149,6 @@ public class LoadBalancer {
 
 
     private static void waitForClients(){
-        // TODO: wait for a client to connect, use a rabiitMQ queue ?
         System.out.println("[LB] Waiting for clients to connect...");
         System.out.println("[LB] TODO");
     }
