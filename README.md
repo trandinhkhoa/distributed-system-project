@@ -13,7 +13,7 @@ Then launch the load balancer :
 Example :
 ./start.sh load_balancer e5bc72b6601283cfff857c7770b257ab ../d.txt 3
 
-After those are launched, several clients can be launched in separate terminals.
+You may need to wait a few moments for the partition to arrive to the servers. Then, several clients can be launched in separate terminals.
 
 ./start.sh client
 
