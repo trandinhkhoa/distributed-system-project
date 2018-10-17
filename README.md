@@ -1,8 +1,8 @@
 # distributed-system-project
+This small project aims to reverse an unsalted hash. By coordinating the computation between multiple computers, we reduced the computation time of the dictionary attack. The server store the dictionary. The clients/worker (clients = workers, sorry for the confusing terminology here) ask the server for work (part of the dictionary) to work on. For example, the big dictionary is partitioned to 4 parts corresponding to 4 servers available. All clients in parallel ask for different part and bruteforcing them to improve the speed of the hash reversal process.
 
 # NOTE: 
-- Run the command from the root directory of the project
-- The client can also be understood as the worker who receive data and do the computation
+- Run the commands from the root directory of the project
 
 # 0. Compile and clean
 Compiling:
